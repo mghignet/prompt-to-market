@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Travailler avec l'IA — le stagiaire amnésique</title>
+<style>
+  :root {
+    --paper: #faf6ee;
+    --card: #fffdf8;
+    --ink: #1f1d1a;
+    --muted: #6a645b;
+    --line: #e3dccd;
+    --good: #17766f;
+    --good-bg: #e0f1ee;
+    --good-line: #b5dcd6;
+    --warn: #c8401f;
+    --warn-bg: #fbe5de;
+    --warn-line: #f0bfb2;
+    --sans: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+    --serif: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; overflow: hidden; background: var(--paper); color: var(--ink); font-family: var(--sans); }
+
+  /* Scène fixe en 1280x720, mise à l'échelle par le script. */
+  #stage { position: absolute; width: 1280px; height: 720px; transform-origin: 0 0; }
+
+  /* Fil d'Ariane : où en est-on dans les 7 temps ? */
+  #tracker { position: absolute; top: 32px; left: 72px; right: 72px; display: flex; gap: 8px; align-items: center; list-style: none; padding: 0; height: 36px; }
+  #tracker li { display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 12px; border-radius: 18px; font-size: 18px; font-weight: 600; color: var(--muted); border: 1.5px solid var(--line); }
+  #tracker li.done { color: var(--good); border-color: var(--good-line); }
+  #tracker li.current { background: var(--good); border-color: var(--good); color: #fff; padding: 0 16px; }
+  #tracker li .label { display: none; }
+  #tracker li.current .label { display: inline; }
+  #tracker.hidden { visibility: hidden; }
+
+  #counter { position: absolute; right: 72px; bottom: 24px; font-size: 16px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  #progress { position: fixed; left: 0; bottom: 0; height: 4px; background: var(--good); transition: width .2s; }
+
+  .slide { position: absolute; inset: 0; padding: 100px 72px 60px; display: none; flex-direction: column; gap: 24px; }
+  .slide.active { display: flex; animation: appear .18s ease-out; }
+  @keyframes appear { from { opacity: 0; } to { opacity: 1; } }
+
+  /* Les « steps » sont les seules animations : l'orateur révèle un élément à la fois. */
+  .step { opacity: 0; transform: translateY(10px); transition: opacity .25s ease, transform .25s ease; }
+  .step.shown { opacity: 1; transform: none; }
+
+  h1 { font-family: var(--serif); font-size: 80px; line-height: 1.04; letter-spacing: -.02em; }
+  h2 { font-family: var(--serif); font-size: 50px; line-height: 1.08; letter-spacing: -.01em; }
+  .lead { font-size: 27px; line-height: 1.35; color: var(--muted); max-width: 1000px; }
+  .lead strong { color: var(--ink); font-weight: 600; }
+  .eyebrow { font-size: 22px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--good); }
+  .good-text { color: var(--good); }
+  .warn-text { color: var(--warn); }
+  code { font-family: var(--mono); font-size: .86em; background: #efe8d8; padding: 2px 8px; border-radius: 6px; }
+
+  .title { justify-content: center; gap: 32px; padding-top: 60px; }
+  .hint { font-size: 18px; color: var(--muted); }
+
+  /* Cartes : teal = bonne pratique, corail = piège, neutre = information. */
+  .card { background: var(--card); border: 1.5px solid var(--line); border-radius: 16px; padding: 20px 24px; font-size: 23px; line-height: 1.38; }
+  .card.good { background: var(--good-bg); border-color: var(--good-line); }
+  .card.warn { background: var(--warn-bg); border-color: var(--warn-line); }
+  .card h3 { font-size: 27px; line-height: 1.2; margin-bottom: 8px; }
+  .card .tag { display: inline-block; margin-top: 10px; font-size: 18px; font-weight: 700; padding: 3px 12px; border-radius: 999px; background: var(--warn); color: #fff; }
+
+  .grid { display: grid; gap: 20px; align-content: start; }
+  .cols-2 { grid-template-columns: 1fr 1fr; }
+  .cols-3 { grid-template-columns: repeat(3, 1fr); }
+
+  /* Flux horizontal : chaque maillon (flèche comprise) apparaît d'un bloc. */
+  .flow { display: flex; align-items: stretch; }
+  .flow > .step { flex: 1; display: flex; align-items: center; gap: 10px; }
+  .flow > .step > .card { flex: 1; align-self: stretch; font-size: 22px; }
+  .arrow { font-size: 36px; color: var(--muted); }
+
+  .stack { display: flex; flex-direction: column; gap: 14px; }
+
+  /* Pile de couches du prompt : la première couche du DOM est en bas. */
+  .layers { display: flex; flex-direction: column-reverse; gap: 10px; width: 640px; }
+  .layer { padding: 16px 22px; border-radius: 12px; font-size: 25px; font-weight: 600; background: var(--good-bg); border: 1.5px solid var(--good-line); display: flex; justify-content: space-between; align-items: baseline; }
+  .layer small { font-size: 19px; font-weight: 400; color: var(--muted); }
+  .layer.base { background: #ece6d8; border-color: var(--line); }
+  .layer.top { background: var(--good); border-color: var(--good); color: #fff; }
+
+  .row { display: grid; grid-template-columns: 300px 1fr; gap: 24px; align-items: center; }
+  .row .name { font-size: 25px; font-weight: 700; }
+
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+  .chip { font-size: 19px; font-weight: 600; padding: 4px 14px; border-radius: 999px; background: #fff; border: 1.5px solid var(--good-line); color: var(--good); }
+
+  .agenda { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .agenda li { display: grid; grid-template-columns: 44px 330px 1fr; align-items: baseline; font-size: 24px; padding: 8px 0; border-bottom: 1.5px solid var(--line); }
+  .agenda .num { font-family: var(--serif); font-size: 30px; color: var(--good); font-weight: 700; }
+  .agenda .name { font-weight: 700; }
+  .agenda .msg { color: var(--muted); }
+
+  .seq { display: flex; flex-direction: column; gap: 10px; font-size: 23px; }
+  .seq div + div::before { content: "↓"; display: block; color: var(--muted); font-size: 24px; margin-bottom: 4px; }
+
+  .big { font-family: var(--serif); font-size: 42px; line-height: 1.2; }
+  .sevens { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 26px; }
+  .sevens li { display: grid; grid-template-columns: 44px 1fr; align-items: baseline; padding: 7px 0; border-bottom: 1.5px solid var(--line); }
+  .sevens .num { font-family: var(--serif); font-size: 30px; color: var(--good); font-weight: 700; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slide.active { animation: none; }
+    .step { transition: none; transform: none; }
+    #progress { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <ol id="tracker" aria-label="Avancement"></ol>
+
+  <!-- Ouverture -->
+  <section class="slide title" aria-label="Titre">
+    <p class="eyebrow">Retour d'expérience · bonnes pratiques SDLC</p>
+    <h1>Travailler avec l'IA :<br>un stagiaire <span class="good-text">brillant</span>,<br>mais <span class="warn-text">amnésique</span></h1>
+    <p class="lead">Ce qui marche, ce qui casse, et comment on l'encadre.</p>
+    <p class="hint">→ pour avancer · ← pour reculer · F pour le plein écran</p>
+  </section>
+
+  <section class="slide" aria-label="Le fil rouge">
+    <h2>Une image pour toute la présentation</h2>
+    <p class="lead">Un nouveau stagiaire, chaque matin.</p>
+    <div class="grid cols-3">
+      <div class="card good step">
+        <h3>Brillant</h3>
+        Raisonne vite, comprend à demi-mot, pose de bonnes questions.
+      </div>
+      <div class="card warn step">
+        <h3>Amnésique</h3>
+        Chaque session repart de zéro. Rien n'est retenu d'hier.
+      </div>
+      <div class="card step">
+        <h3>Littéral</h3>
+        Il fait ce qu'on lui dit. Il faut préciser ce qu'on attend en sortie.
+      </div>
+    </div>
+    <p class="lead step"><strong>Donc :</strong> on le cadre, on lui fait écrire ce qui compte, on relit son travail et on corrige la cause de ses erreurs.</p>
+  </section>
+
+  <section class="slide" aria-label="Les sept temps">
+    <h2>Sept temps</h2>
+    <ol class="agenda">
+      <li><span class="num">1</span><span class="name">La mécanique</span><span class="msg">Pourquoi l'IA oublie</span></li>
+      <li><span class="num">2</span><span class="name">La mémoire</span><span class="msg">Ce qui n'est pas commité est perdu</span></li>
+      <li><span class="num">3</span><span class="name">Les sessions</span><span class="msg">Un objectif, une PR</span></li>
+      <li><span class="num">4</span><span class="name">La méthode</span><span class="msg">Un cadre, pas une obligation</span></li>
+      <li><span class="num">5</span><span class="name">La connaissance</span><span class="msg">Onboarder le stagiaire</span></li>
+      <li><span class="num">6</span><span class="name">Le cadrage</span><span class="msg">Vocabulaire, langue, format</span></li>
+      <li><span class="num">7</span><span class="name">La relecture</span><span class="msg">Corriger la cause, pas le symptôme</span></li>
+    </ol>
+  </section>
+
+  <!-- 1. Mécanique -->
+  <section class="slide" data-section="1" aria-label="LLM, harnais, agent">
+    <h2>LLM, harnais, agent : qui fait quoi ?</h2>
+    <p class="lead">Comprendre pourquoi l'IA oublie explique toutes les autres pratiques.</p>
+    <div class="flow">
+      <div class="step">
+        <div class="card">
+          <h3>LLM</h3>
+          Du texte en entrée, du texte en sortie.<br>
+          <span class="tag">sans état</span>
+        </div>
+      </div>
+      <div class="step">
+        <span class="arrow">→</span>
+        <div class="card">
+          <h3>Harnais</h3>
+          Relance le LLM en boucle : réfléchit, lit des fichiers, appelle des outils.
+          <div class="lead" style="font-size:19px;margin-top:8px">Copilot, Claude Code…</div>
+        </div>
+      </div>
+      <div class="step">
+        <span class="arrow">→</span>
+        <div class="card">
+          <h3>Agent</h3>
+          Une session. Peut déléguer à des sous-agents.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-section="1" aria-label="La pile du prompt">
+    <h2>Le prompt est une pile, reconstruite à chaque session</h2>
+    <p class="lead">La réflexion vient du modèle. <strong>La connaissance métier vient de toi.</strong></p>
+    <div style="display:flex;gap:40px;align-items:flex-start">
+      <div class="layers">
+        <div class="layer base step">Entraînement du modèle <small>pas à moi</small></div>
+        <div class="layer step">Instructions globales <small>mes préférences</small></div>
+        <div class="layer step">agent.md du projet <small>conventions d'équipe</small></div>
+        <div class="layer top step">Ce que je dis maintenant</div>
+      </div>
+      <div class="card good step" style="flex:1;margin-top:60px">
+        Les deux couches du milieu, c'est <strong>toi qui les écris</strong>. Elles survivent d'une session à l'autre.
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Mémoire -->
+  <section class="slide" data-section="2" aria-label="La mémoire est le repo">
+    <h2>Ce qui n'est pas commité est perdu</h2>
+    <p class="lead">La session oublie. Le repo se souvient.</p>
+    <div class="flow">
+      <div class="step">
+        <div class="card"><h3>Session 1</h3>On discute, on décide.</div>
+      </div>
+      <div class="step">
+        <span class="arrow">→</span>
+        <div class="card"><h3>PR</h3>On commit ce qui compte.</div>
+      </div>
+      <div class="step">
+        <span class="arrow">→</span>
+        <div class="card good"><h3>Repo</h3><code>agent.md</code> et docs en <code>.md</code></div>
+      </div>
+      <div class="step">
+        <span class="arrow">→</span>
+        <div class="card"><h3>Session 2</h3>Relit le repo, repart de l'état.</div>
+      </div>
+    </div>
+    <div class="card warn step">Fermer la session sans commiter : <strong>tout est oublié</strong>.</div>
+  </section>
+
+  <section class="slide" data-section="2" aria-label="Où écrire quoi">
+    <h2>Où écrire quoi ?</h2>
+    <p class="lead">Une seule source de vérité pour les instructions.</p>
+    <div class="stack">
+      <div class="card row step"><span class="name"><code>agent.md</code> du projet</span><span>Conventions d'équipe, partagées et versionnées.</span></div>
+      <div class="card row step"><span class="name">Instructions globales</span><span>Mes préférences perso. Elles restent génériques : aucune règle de projet.</span></div>
+      <div class="card row step"><span class="name"><code>copilot-instructions</code></span><span>Renvoie vers <code>agent.md</code> : pas de doublon.</span></div>
+    </div>
+    <p class="lead step">Une préférence change ? Demander à l'IA de l'enregistrer <strong>au bon endroit</strong>.</p>
+  </section>
+
+  <!-- 3. Sessions -->
+  <section class="slide" data-section="3" aria-label="Une session, un objectif, une PR">
+    <h2>Une session, un objectif, une PR</h2>
+    <p class="lead">Même logique que « un commit = une chose ».</p>
+    <div class="flow">
+      <div class="step"><div class="card"><h3>Session</h3>Un seul objectif.</div></div>
+      <div class="step"><span class="arrow">→</span><div class="card"><h3>PR</h3>Tout est écrit.</div></div>
+      <div class="step"><span class="arrow">→</span><div class="card"><h3>Relecture</h3>Puis merge.</div></div>
+      <div class="step"><span class="arrow">↺</span><div class="card good"><h3>Session neuve</h3>Mémoire à jour.</div></div>
+    </div>
+    <div class="card warn step"><strong>Session qui grossit :</strong> compaction arbitraire, qualité en baisse, coût en tokens en hausse.</div>
+  </section>
+
+  <section class="slide" data-section="3" aria-label="Isoler le contexte">
+    <h2>Isoler le contexte</h2>
+    <p class="lead">Moins de contexte pollué, moins d'hallucinations.</p>
+    <div class="grid cols-2">
+      <div class="card good step">
+        <h3>Sous-agents</h3>
+        Contexte propre et regard extérieur. Exemple : la review de code, lancée sans l'historique de la discussion.
+      </div>
+      <div class="card good step">
+        <h3>Worktrees</h3>
+        Une copie du projet par session : plusieurs sessions en parallèle, sans toucher à ton local.
+      </div>
+    </div>
+    <div class="card step">
+      <strong>À nuancer.</strong> Le repère « ne pas dépasser ~25 % du contexte » est une recommandation, pas une règle.
+      <strong>Contre-exemple vécu :</strong> deux sujets dans une session, et la PR devient difficile à relire.
+    </div>
+  </section>
+
+  <!-- 4. Méthode -->
+  <section class="slide" data-section="4" aria-label="Skill, BMAD, SDLC">
+    <h2>Skill, BMAD, SDLC : des recettes emboîtées</h2>
+    <p class="lead">Un skill guide l'IA comme une recette : « chez moi, on cuit les pâtes dans cette casserole ».</p>
+    <div class="stack">
+      <div class="card row step"><span class="name">Skill</span><span>Une recette pour une action précise.</span></div>
+      <div class="card row step">
+        <span class="name">BMAD</span>
+        <span>Des skills orientés cycle de vie.
+          <span class="chips"><span class="chip">Brief</span>→<span class="chip">PRD</span>→<span class="chip">Architecture</span>→<span class="chip">Dev</span>→<span class="chip">Review</span></span>
+        </span>
+      </div>
+      <div class="card row good step"><span class="name">SDLC d'entreprise</span><span>BMAD plus les skills maison. Installé dans la <strong>première PR</strong> du projet, comme un <code>npm install</code>.</span></div>
+    </div>
+  </section>
+
+  <section class="slide" data-section="4" aria-label="Un cadre, pas une obligation">
+    <h2>Un cadre, pas une obligation</h2>
+    <p class="lead">Le bon niveau de méthode dépend de la tâche.</p>
+    <div class="grid cols-2">
+      <div class="card step"><h3>Invoquer explicitement</h3>Sans cela, l'IA improvise sans utiliser les skills.</div>
+      <div class="card step"><h3>Pas toujours adapté</h3>BMAD est verbeux, lourd pour de la discovery. Alternatives citées : GSD, Spec Kit.</div>
+      <div class="card step"><h3>Surcharger les défauts</h3>Exemple : une review qui doit absolument trouver un défaut, même quand il n'y en a pas.</div>
+      <div class="card step"><h3>Modèle selon la tâche</h3>Un modèle léger pour extraire, un plus fort pour raisonner.</div>
+    </div>
+  </section>
+
+  <!-- 5. Connaissance -->
+  <section class="slide" data-section="5" aria-label="Onboarder le stagiaire">
+    <h2>Onboarder le stagiaire</h2>
+    <p class="lead">Le coût est au départ. Ensuite, le repo se réutilise.</p>
+    <div style="display:grid;grid-template-columns:.8fr 1.2fr;gap:20px">
+      <div class="card warn step">
+        <h3>Sans cadrage : context poisoning</h3>
+        Un document vieux de six mois et des slides récents sont mis au même niveau. Les réponses se mélangent.
+      </div>
+      <div class="card good stack" style="gap:14px">
+        <div class="step"><strong>Dire ce qui est obsolète</strong> et quelle est la source de vérité.</div>
+        <div class="step">Faire distinguer <strong>fait vérifié, interprétation, recommandation</strong>.</div>
+        <div class="step">Donner les comptes-rendus de réunion : il met à jour et <strong>clôt les questions ouvertes</strong>.</div>
+        <div class="step">Garder les liens vers les sources : « retourne voir, ça a changé ».</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-section="5" aria-label="Un repo de connaissance pour plusieurs projets">
+    <h2>Un repo de connaissance, plusieurs projets</h2>
+    <p class="lead">Un lien dans <code>agent.md</code> suffit à brancher une session sur la bonne source.</p>
+    <div class="flow">
+      <div class="step"><div class="card"><h3>Repo de discovery</h3>Questions ouvertes et closes, décisions.</div></div>
+      <div class="step"><span class="arrow">→</span><div class="card"><h3>Lien dans <code>agent.md</code></h3>Du repo de code vers la discovery.</div></div>
+      <div class="step"><span class="arrow">→</span><div class="card"><h3>Session neuve</h3>Lit la discovery, propose un plan, tu valides.</div></div>
+    </div>
+    <div class="card good step">Exemple : une brique A est remplacée par une brique B dans la discovery. <strong>Le code suit</strong>, en une PR.</div>
+  </section>
+
+  <!-- 6. Cadrage -->
+  <section class="slide" data-section="6" aria-label="Cadrer la sortie">
+    <h2>Cadrer ce qu'on attend en sortie</h2>
+    <p class="lead">Sans cadre, l'IA invente son vocabulaire, son format et sa complexité.</p>
+    <div class="grid cols-3">
+      <div class="card step"><h3>Vocabulaire</h3>Termes métier imposés. Un seul mot par concept.</div>
+      <div class="card step"><h3>Langues</h3><span class="good-text"><strong>FR</strong></span> échanges et contenu.<br><span class="good-text"><strong>EN</strong></span> fichiers, dossiers, commits.</div>
+      <div class="card step"><h3>Format</h3>Des schémas et des exemples plutôt que de longs textes.</div>
+      <div class="card step"><h3>YAGNI / KISS</h3>Contre la sur-architecture (des tests CSS que personne n'a demandés).</div>
+      <div class="card step"><h3>Humain ou agent</h3>Les instructions pour l'agent vont en commentaires, pas dans le texte lu par l'humain.</div>
+      <div class="card step"><h3>Structure de doc</h3>Lui faire proposer un plan (par exemple PARA), puis le valider.</div>
+    </div>
+  </section>
+
+  <!-- 7. Relecture -->
+  <section class="slide" data-section="7" aria-label="Corriger la cause">
+    <h2>Corriger la cause, pas le symptôme</h2>
+    <p class="lead">Un « retire ça » sans règle écrite, et l'erreur revient.</p>
+    <div class="grid cols-2">
+      <div class="card warn step">
+        <h3>Je corrige le symptôme</h3>
+        <div class="seq">
+          <div>« Retire ce bloc »</div>
+          <div>L'IA obéit</div>
+          <div><strong>Trois PR plus tard : même erreur</strong></div>
+        </div>
+      </div>
+      <div class="card good step">
+        <h3>Je corrige la cause</h3>
+        <div class="seq">
+          <div>« Retire ce bloc »</div>
+          <div>Et la règle est écrite dans <code>agent.md</code></div>
+          <div><strong>L'erreur ne revient plus</strong></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-section="7" aria-label="Relire la PR comme un collègue">
+    <h2>La PR se relit comme celle d'un collègue</h2>
+    <p class="lead">Relire beaucoup au début, de moins en moins ensuite.</p>
+    <div class="flow">
+      <div class="step"><div class="card"><h3>Relire</h3>Comme un dev externe.</div></div>
+      <div class="step"><span class="arrow">→</span><div class="card"><h3>Commenter</h3>Review dans la PR.</div></div>
+      <div class="step"><span class="arrow">→</span><div class="card good"><h3>« Prends en compte »</h3>Nouveau commit, nouvelle règle.</div></div>
+    </div>
+  </section>
+
+  <section class="slide" data-section="7" aria-label="Garder le pourquoi">
+    <h2>Garder le pourquoi, s'adapter</h2>
+    <p class="lead">Une pratique durable laisse une trace et s'ajuste à celui qui l'utilise.</p>
+    <div class="grid cols-3">
+      <div class="card step"><h3>Historique du pourquoi</h3>Un memo log ou des ADR : savoir pourquoi une règle existe.</div>
+      <div class="card step"><h3>Recadrer</h3>Pas satisfait ? Une session de recadrage plutôt que s'acharner.</div>
+      <div class="card step"><h3>Ses habitudes</h3>Exemple : statut du sprint déjà à jour dans la PR, puisque c'est toi qui cliques sur merge.</div>
+    </div>
+  </section>
+
+  <!-- Clôture -->
+  <section class="slide" aria-label="Posture">
+    <h2>La posture</h2>
+    <div class="grid cols-2" style="margin-top:20px">
+      <div class="card step"><p class="big">Pas un moteur de recherche.</p><p style="margin-top:14px">On lui demande, on lui explique, on relit. On ne va pas chercher à sa place sur Google.</p></div>
+      <div class="card good step"><p class="big">Plus vite, ensemble.</p><p style="margin-top:14px">La courbe d'apprentissage est longue seul. Partager les pratiques en équipe l'accélère.</p></div>
+    </div>
+  </section>
+
+  <section class="slide" aria-label="Le stagiaire en sept phrases">
+    <h2>Le stagiaire, en sept phrases</h2>
+    <ol class="sevens">
+      <li class="step"><span class="num">1</span><span>Il ne retient rien : il faut comprendre pourquoi.</span></li>
+      <li class="step"><span class="num">2</span><span>Alors on écrit dans le repo.</span></li>
+      <li class="step"><span class="num">3</span><span>Une session, un objectif, une PR.</span></li>
+      <li class="step"><span class="num">4</span><span>La méthode est un cadre, pas une obligation.</span></li>
+      <li class="step"><span class="num">5</span><span>On l'onboarde : sources, vérité, obsolète.</span></li>
+      <li class="step"><span class="num">6</span><span>On cadre ce qu'on attend en sortie.</span></li>
+      <li class="step"><span class="num">7</span><span>On relit, et on corrige la cause.</span></li>
+    </ol>
+  </section>
+
+  <div id="counter"></div>
+</div>
+<div id="progress"></div>
+
+<script>
+  const SECTION_LABELS = ["Mécanique", "Mémoire", "Sessions", "Méthode", "Connaissance", "Cadrage", "Relecture"];
+
+  const stage = document.getElementById("stage");
+  const tracker = document.getElementById("tracker");
+  const counter = document.getElementById("counter");
+  const progress = document.getElementById("progress");
+  const slides = [...document.querySelectorAll(".slide")];
+
+  SECTION_LABELS.forEach((label, i) => {
+    const item = document.createElement("li");
+    item.innerHTML = `<span>${i + 1}</span><span class="label">${label}</span>`;
+    tracker.append(item);
+  });
+
+  let currentIndex = 0;
+
+  const stepsOf = (slide) => [...slide.querySelectorAll(".step")];
+
+  function fitStageToWindow() {
+    const scale = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    stage.style.transform = `scale(${scale})`;
+    stage.style.left = `${(window.innerWidth - 1280 * scale) / 2}px`;
+    stage.style.top = `${(window.innerHeight - 720 * scale) / 2}px`;
+  }
+
+  function updateTracker(slide) {
+    const section = Number(slide.dataset.section || 0);
+    tracker.classList.toggle("hidden", section === 0);
+    [...tracker.children].forEach((item, i) => {
+      item.classList.toggle("current", i + 1 === section);
+      item.classList.toggle("done", i + 1 < section);
+    });
+  }
+
+  function showSlide(index, revealAllSteps) {
+    currentIndex = index;
+    slides.forEach((slide, i) => slide.classList.toggle("active", i === index));
+    stepsOf(slides[index]).forEach((step) => step.classList.toggle("shown", revealAllSteps));
+    updateTracker(slides[index]);
+    counter.textContent = `${index + 1} / ${slides.length}`;
+    progress.style.width = `${((index + 1) / slides.length) * 100}%`;
+    history.replaceState(null, "", `#${index + 1}`);
+  }
+
+  function goForward() {
+    const nextHiddenStep = stepsOf(slides[currentIndex]).find((step) => !step.classList.contains("shown"));
+    if (nextHiddenStep) return nextHiddenStep.classList.add("shown");
+    if (currentIndex < slides.length - 1) showSlide(currentIndex + 1, false);
+  }
+
+  function goBack() {
+    const shownSteps = stepsOf(slides[currentIndex]).filter((step) => step.classList.contains("shown"));
+    if (shownSteps.length > 0) return shownSteps.at(-1).classList.remove("shown");
+    if (currentIndex > 0) showSlide(currentIndex - 1, true);
+  }
+
+  document.addEventListener("keydown", (event) => {
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+    if (["ArrowRight", "ArrowDown", "PageDown", " ", "Enter"].includes(event.key)) goForward();
+    else if (["ArrowLeft", "ArrowUp", "PageUp", "Backspace"].includes(event.key)) goBack();
+    else if (event.key === "Home") showSlide(0, false);
+    else if (event.key === "End") showSlide(slides.length - 1, true);
+    else if (event.key.toLowerCase() === "f") {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else document.documentElement.requestFullscreen();
+    } else return;
+    event.preventDefault();
+  });
+
+  let swipeStartX = null;
+  document.addEventListener("touchstart", (event) => { swipeStartX = event.touches[0].clientX; });
+  document.addEventListener("touchend", (event) => {
+    if (swipeStartX === null) return;
+    const deltaX = event.changedTouches[0].clientX - swipeStartX;
+    swipeStartX = null;
+    if (Math.abs(deltaX) < 50) return;
+    if (deltaX < 0) goForward(); else goBack();
+  });
+
+  window.addEventListener("resize", fitStageToWindow);
+  fitStageToWindow();
+
+  const slideFromHash = Number(location.hash.slice(1)) - 1;
+  showSlide(slideFromHash >= 0 && slideFromHash < slides.length ? slideFromHash : 0, slideFromHash > 0);
+</script>
+</body>
+</html>
