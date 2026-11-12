@@ -22,10 +22,11 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Publish only the slides
+      - name: Publish only the slides and their assets
         run: |
           mkdir _site
           cp slides.html _site/index.html
+          cp -r assets _site/assets
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
