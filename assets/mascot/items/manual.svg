@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="15 235 140 140" role="img">
+<title>Manuel</title>
+<g stroke="#1F2544" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+  <g transform="translate(84 314) rotate(-8)">
+    <rect x="-2" y="-70" width="20" height="30" fill="#FFFFFF" stroke-width="3.5"/>
+    <path d="M3 -61L7 -56L14 -65" fill="none" stroke="#1F9D6E" stroke-width="3.5"/>
+    <rect x="30" y="-38" width="14" height="12" rx="2" fill="#FFCB00" stroke-width="3.5"/>
+    <rect x="30" y="-16" width="14" height="12" rx="2" fill="#FF9DB0" stroke-width="3.5"/>
+    <rect x="30" y="6" width="14" height="12" rx="2" fill="#5CC8F0" stroke-width="3.5"/>
+    <rect x="-30" y="-48" width="66" height="100" rx="5" fill="#FFFFFF"/>
+    <rect x="-38" y="-52" width="72" height="104" rx="6" fill="#6B4FD8"/>
+    <path d="M-25 -52V52" fill="none" stroke="#4E36B0" stroke-width="7"/>
+    <path d="M5 -15V-8M-11 -8H21M-11 -8V0M5 -8V0M21 -8V0" fill="none" stroke="#FFCB00" stroke-width="3.5"/>
+    <circle cx="5" cy="-22" r="6.5" fill="#FFCB00" stroke-width="3"/>
+    <circle cx="-11" cy="6" r="5.5" fill="#FFCB00" stroke-width="3"/>
+    <circle cx="5" cy="6" r="5.5" fill="#FFCB00" stroke-width="3"/>
+    <circle cx="21" cy="6" r="5.5" fill="#FFCB00" stroke-width="3"/>
+    <path d="M-12 28H22M-6 38H16" fill="none" stroke="#FFFFFF" stroke-width="4"/>
+  </g></g>
+</svg>
