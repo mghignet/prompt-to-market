@@ -30,14 +30,30 @@
   #stage::after { content: ""; position: absolute; left: 72px; bottom: 20px; width: 200px; height: 20px; background: url("assets/mgh-logo-horizontal-couleur.svg") left center / contain no-repeat; }
   #stage:has(.title.active)::after { top: 48px; bottom: auto; height: 30px; width: 300px; }
 
-  /* Fil d'Ariane : où en est-on dans les 7 temps ? */
-  #tracker { position: absolute; top: 32px; left: 72px; right: 72px; display: flex; gap: 8px; align-items: center; list-style: none; padding: 0; height: 36px; }
+  /* Fil d'Ariane : dans quelle partie est-on ? */
+  #tracker { position: absolute; top: 32px; left: 72px; display: flex; gap: 8px; align-items: center; list-style: none; padding: 0; height: 36px; }
   #tracker li { display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 12px; border-radius: 18px; font-size: 15px; font-weight: 600; color: var(--mgh-text-muted); border: 1.5px solid var(--mgh-line); }
   #tracker li.done { color: var(--mgh-navy); border-color: var(--mgh-navy); }
   #tracker li.current { background: var(--mgh-yellow); border-color: var(--mgh-yellow); color: var(--mgh-ink); padding: 0 16px; }
-  #tracker li .label { display: none; }
-  #tracker li.current .label { display: inline; }
   #tracker.hidden { visibility: hidden; }
+
+  /* Inventaire, comme dans un jeu : une case par objet reçu. Complet, il s'entoure d'un halo et de paillettes. */
+  #inventory { position: absolute; left: 72px; top: 239px; }
+  #inventory.hidden { visibility: hidden; }
+  #inventory .slots { display: flex; flex-direction: column; gap: 8px; list-style: none; padding: 0; }
+  /* L'inventaire est une colonne à gauche de la mascotte : on lui laisse la place. */
+  .slide[data-gear] { padding-left: 150px; }
+  #inventory .slots li { width: 50px; height: 50px; border-radius: 12px; border: 2px dashed var(--mgh-line); background: #fff; display: grid; place-items: center; transition: box-shadow .4s, border-color .4s; }
+  #inventory .slots img { width: 36px; height: 36px; opacity: 0; transform: scale(.3); transition: opacity .25s, transform .25s; }
+  #inventory .slots li.received { border: 2px solid var(--mgh-navy); }
+  #inventory .slots li.received img { opacity: 1; transform: none; }
+  #inventory .slots li.new { background: var(--mgh-yellow); border-color: var(--mgh-yellow); animation: pop .45s ease-out; }
+  #inventory.full .slots li { border-color: var(--mgh-yellow); animation: halo 2s ease-in-out calc(var(--i) * .2s) infinite alternate; }
+  #inventory .sparkle { position: absolute; left: var(--x); top: var(--y); font-size: 15px; line-height: 1; color: var(--mgh-yellow); text-shadow: 0 0 6px rgba(255, 203, 0, .9); opacity: 0; pointer-events: none; }
+  #inventory.full .sparkle { animation: twinkle 1.8s ease-in-out var(--d) infinite; }
+  @keyframes pop { 0% { transform: scale(.6); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
+  @keyframes halo { from { box-shadow: 0 0 8px 1px rgba(255, 203, 0, .35); } to { box-shadow: 0 0 22px 6px rgba(255, 203, 0, .7); } }
+  @keyframes twinkle { 0%, 100% { opacity: 0; transform: scale(.4) rotate(0); } 50% { opacity: 1; transform: scale(1) rotate(45deg); } }
 
   #counter { position: absolute; right: 72px; bottom: 24px; font-size: 14px; color: var(--mgh-text-muted); font-variant-numeric: tabular-nums; }
   #stage:has(.title.active) #counter { color: var(--mgh-ink); }
@@ -98,6 +114,7 @@
   .row .name { font-size: 21px; font-weight: 700; }
 
   .chips { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+  .chips-label { font-size: 16px; font-weight: 600; color: var(--mgh-text-muted); margin-right: 4px; }
   .chip { font-size: 16px; font-weight: 600; padding: 4px 14px; border-radius: 999px; background: #fff; border: 1.5px solid var(--mgh-navy); color: var(--mgh-navy); }
 
   /* Numéros : pastille jaune. */
@@ -115,7 +132,52 @@
   .sevens { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 22px; }
   .sevens li { display: grid; grid-template-columns: 44px 1fr; align-items: baseline; padding: 7px 0; border-bottom: 1.5px solid var(--mgh-line); }
 
+  /* Slide avec la mascotte à gauche et le texte à droite ; « hero » : la mascotte occupe toute la hauteur. */
+  .slide.with-mascot.active { display: grid; grid-template-columns: 384px 1fr; gap: 56px; align-items: center; }
+  .mascot { width: 384px; height: 480px; }
+  /* Quand le problème apparaît, la mascotte « problème » remplace la mascotte « solution ». */
+  .mascot-swap { display: grid; }
+  .mascot-swap > img { grid-area: 1 / 1; transition: opacity .25s ease; }
+  .mascot-swap > .problem-mascot { opacity: 0; }
+  .slide:has(.problem.shown) .mascot-swap > .problem-mascot { opacity: 1; }
+  .slide:has(.problem.shown) .mascot-swap > img:first-child { opacity: 0; }
+
+  /* Le problème se voit : étiquette rouge, et la slide se teinte de rouge autour de la mascotte. */
+  .problem { font-size: 22px; }
+  .problem-label { display: block; width: fit-content; margin-bottom: 8px; padding: 2px 12px; border-radius: 999px; background: var(--mgh-red); color: #fff; font-size: 14px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+  .slide:has(.problem)::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0; transition: opacity .4s ease; background: radial-gradient(circle at 28% 55%, rgba(255, 45, 45, .16), rgba(255, 45, 45, .05) 45%, transparent 75%); }
+  .slide:has(.problem.shown)::after { opacity: 1; }
+  /* Le LLM n'est qu'une tête : on garde le haut de l'image pour ne pas laisser un grand vide. */
+  .mascot.head-only { height: 250px; object-fit: cover; object-position: top; }
+  .slide.hero.active { grid-template-columns: 448px 1fr; }
+  .hero .mascot { width: 448px; height: 560px; }
+  .with-mascot .stack { gap: 16px; }
+  .hero .stack { gap: 24px; }
+  .say { font-family: var(--mono); font-size: 17px; line-height: 1.5; margin-top: 6px; }
+
+  /* Les six niveaux de la mascotte, côte à côte. */
+  .gear { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(6, 1fr); grid-template-rows: auto auto auto; column-gap: 12px; margin-top: 8px; }
+  /* Subgrid : les libellés et les exemples restent alignés d'une colonne à l'autre. */
+  .gear li { grid-row: span 3; display: grid; grid-template-rows: subgrid; row-gap: 6px; justify-items: center; text-align: center; }
+  /* Les SVG ont des marges blanches : l'image déborde sur les colonnes voisines sans toucher leur dessin. */
+  .gear img { width: 125%; aspect-ratio: 4 / 5; }
+  .gear .term { font-size: 20px; font-weight: 700; line-height: 1.2; }
+  .gear-examples { font-size: 15px; line-height: 1.4; color: var(--mgh-text-muted); }
+
+  /* Notes de l'orateur : cachées par défaut, la touche N les affiche à droite de la slide. */
+  .slide aside.notes { display: none; }
+  #notes { display: none; position: fixed; top: 0; right: 0; bottom: 0; width: 38vw; padding: 40px; align-items: center; background: #fff; }
+  body.notes-open #notes { display: flex; }
+  #notes-text { max-height: 100%; overflow-y: auto; border-left: 3px solid var(--mgh-navy); padding-left: 20px; font-size: 16px; line-height: 1.55; color: var(--mgh-ink); }
+  #notes-text p + p { margin-top: 12px; }
+  #notes-text .empty { color: var(--mgh-text-muted); }
+
+  /* Anciennes slides gardées tant que leur contenu n'est pas repris dans la nouvelle version. */
+  .slide.legacy::before { content: "À reprendre"; position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); font-size: 14px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--mgh-red); border: 1.5px dashed var(--mgh-red); border-radius: 999px; padding: 3px 14px; }
+
   @media (prefers-reduced-motion: reduce) {
+    #inventory *, #inventory .slots li { animation: none !important; transition: none; }
+    #inventory.full .sparkle { opacity: 1; }
     .slide.active { animation: none; }
     .step { transition: none; transform: none; }
     #progress { transition: none; }
@@ -125,16 +187,208 @@
 <body>
 <div id="stage">
   <ol id="tracker" aria-label="Avancement"></ol>
+  <div id="inventory" aria-label="Équipement du collègue">
+    <ol class="slots"></ol>
+    <span class="sparkle" style="--x:-14px;--y:-12px;--d:0s" aria-hidden="true">✦</span>
+    <span class="sparkle" style="--x:54px;--y:34px;--d:.5s" aria-hidden="true">✦</span>
+    <span class="sparkle" style="--x:-18px;--y:92px;--d:1.1s" aria-hidden="true">✦</span>
+    <span class="sparkle" style="--x:56px;--y:150px;--d:.3s" aria-hidden="true">✦</span>
+    <span class="sparkle" style="--x:-16px;--y:208px;--d:.8s" aria-hidden="true">✦</span>
+    <span class="sparkle" style="--x:54px;--y:256px;--d:1.3s" aria-hidden="true">✦</span>
+    <span class="sparkle" style="--x:18px;--y:-20px;--d:.6s" aria-hidden="true">✦</span>
+    <span class="sparkle" style="--x:20px;--y:286px;--d:1.5s" aria-hidden="true">✦</span>
+  </div>
 
   <!-- Ouverture -->
-  <section class="slide title" aria-label="Titre">
+  <section class="slide title legacy" aria-label="Titre">
     <p class="eyebrow">Retour d'expérience · bonnes pratiques SDLC</p>
     <h1>Travailler avec l'IA :<br>un stagiaire <span class="good-text">brillant</span>,<br>mais <span class="warn-text">amnésique</span></h1>
     <p class="lead">Ce qui marche, ce qui casse, et comment on l'encadre.</p>
-    <p class="hint">→ pour avancer · ← pour reculer · F pour le plein écran</p>
+    <p class="hint">→ pour avancer · ← pour reculer · F pour le plein écran · N pour les notes</p>
   </section>
 
-  <section class="slide" aria-label="Le fil rouge">
+  <!-- Le nouveau collègue -->
+  <section class="slide with-mascot" aria-label="Ton nouveau collègue">
+    <img class="mascot" src="assets/mascot/00-hello.svg" alt="Le collègue IA, sans équipement, nous fait coucou de la main.">
+    <div class="stack">
+      <h2>L'IA, c'est ton nouveau collègue</h2>
+      <p class="lead">Il est brillant. <strong>On lui parle comme à un humain.</strong></p>
+      <div class="card warn step">
+        <h3>Pas comme à un système</h3>
+        <p class="say">bug login fix</p>
+      </div>
+      <div class="card good step">
+        <h3>Comme à un humain</h3>
+        <p class="say">Le login renvoie une erreur 500 quand l'email contient une majuscule. Trouve la cause, corrige-la et ajoute un test. Si un point n'est pas clair, demande-moi.</p>
+      </div>
+    </div>
+    <aside class="notes">
+      <p>Quand tu t'adresses à l'IA, vois-la telle qu'elle est : pas un système informatique, un collègue. Tu lui parles comme à un humain.</p>
+      <p>Avec une suite de mots-clés, il devine. Avec le contexte, l'objectif et ce que tu attends, il fait le travail, et il te pose une question s'il bloque.</p>
+    </aside>
+  </section>
+
+  <section class="slide with-mascot hero" aria-label="Il faut l'équiper">
+    <img class="mascot" src="assets/mascot/00-pensive.svg" alt="Le collègue IA, sans équipement, la main sous le menton, se demande par où commencer.">
+    <div class="stack">
+      <p class="big">Brillant, mais il arrive <span class="warn-text">les mains vides</span>.</p>
+      <p class="big">Il faut <span class="good-text">l'équiper</span>, puis <span class="good-text">l'onboarder</span>.</p>
+    </div>
+    <aside class="notes">
+      <p>Il est brillant, mais il arrive les mains vides et il ne connaît rien de nous.</p>
+      <p>Il faut l'équiper, puis l'onboarder. L'équipement lui sert dans tous les projets de l'entreprise ; l'onboarding lui fait connaître ton projet.</p>
+    </aside>
+  </section>
+
+  <!-- L'équiper : un niveau par slide ; la limite de chaque niveau amène le suivant. data-gear = nombre d'objets acquis. -->
+  <section class="slide with-mascot" data-section="1" data-gear="0" aria-label="Le LLM">
+    <div class="mascot-swap">
+      <img class="mascot head-only" src="assets/mascot/01-llm.svg" alt="Une tête seule qui parle, avec une bulle.">
+      <img class="mascot head-only problem-mascot" src="assets/mascot/01-llm-problem.svg" alt="La tête seule, l'air gêné, une goutte de sueur sur la tempe.">
+    </div>
+    <div class="stack">
+      <h2>L'usage le plus basique : le LLM</h2>
+      <p class="lead">ChatGPT ou Gemini sur le web. Ce n'est que <strong>la tête</strong> du collègue.</p>
+      <div class="card warn step problem"><span class="problem-label">Problème</span>Il parle, mais il n'agit pas. Et il ne connaît pas tes documents.</div>
+    </div>
+    <aside class="notes">
+      <p>L'usage le plus basique, c'est ChatGPT ou Gemini sur le web. Là, on n'utilise que sa tête : le LLM.</p>
+      <p>Un modèle entraîné sur d'immenses quantités de texte. Il répond intelligemment, mais seul, il ne sait que parler : pas de mains pour agir, pas de mémoire. Le modèle, c'est ce que tu choisis dans le menu « modèle ».</p>
+      <p>Il parle, mais il n'agit pas. Et il ne connaît que ce qu'il a appris : rien de tes documents.</p>
+    </aside>
+  </section>
+
+  <section class="slide with-mascot" data-section="1" data-gear="0" aria-label="Le RAG">
+    <div class="mascot-swap">
+      <img class="mascot head-only" src="assets/mascot/01-rag.svg" alt="Toujours une tête seule qui parle, avec une pile de documents à côté.">
+      <img class="mascot head-only problem-mascot" src="assets/mascot/01-rag-problem.svg" alt="La tête seule à côté de ses documents, l'air gêné, une goutte de sueur sur la tempe.">
+    </div>
+    <div class="stack">
+      <h2>Une petite évolution : le RAG</h2>
+      <p class="lead">Il lit tes documents avant de répondre.</p>
+      <span class="chips"><span class="chips-label">Exemple de RAG</span><span class="chip">Gemini Notebook</span></span>
+      <div class="card warn step problem"><span class="problem-label">Problème</span>Ça reste une tête : il n'agit toujours pas.</div>
+    </div>
+    <aside class="notes">
+      <p>Une petite évolution : le RAG, comme Gemini Notebook. On lui donne tes documents ; il y cherche les passages utiles avant de répondre.</p>
+      <p>Mais ça reste une tête, pas un corps : on peut lui parler, pas le faire agir.</p>
+    </aside>
+  </section>
+
+  <section class="slide with-mascot" data-section="1" data-gear="1" aria-label="Le harnais">
+    <div class="mascot-swap">
+      <img class="mascot" src="assets/mascot/02-harness.svg" alt="Le collègue a un corps et appuie sur le bouton de sa télécommande.">
+      <img class="mascot problem-mascot" src="assets/mascot/02-harness-problem.svg" alt="Le collègue, bouche bée, une bulle de pensée vide au-dessus de la tête.">
+    </div>
+    <div class="stack">
+      <h2>Ajoute un harnais à ton LLM : tu obtiens un agent</h2>
+      <p class="lead">Il lit, écrit, lance des commandes, regarde le résultat, et recommence.</p>
+      <span class="chips"><span class="chips-label">Exemples de harnais</span><span class="chip">Claude Code</span><span class="chip">Codex</span><span class="chip">GitHub Copilot</span></span>
+      <div class="card warn step problem"><span class="problem-label">Problème</span>À chaque session, il faut tout lui redire. Et le reste de l'équipe ne peut pas lui parler.</div>
+    </div>
+    <aside class="notes">
+      <p>Du coup, on lui permet d'agir : on lui donne un corps et une télécommande. C'est le harnais : ajoute un harnais à ton LLM, tu obtiens un agent. On est passé du LLM au RAG, puis à l'agent.</p>
+      <p>Un programme qui relance le LLM en boucle : il lit et écrit des fichiers, lance des commandes, regarde le résultat, puis recommence. LLM + harnais = un agent. Un même harnais peut faire tourner plusieurs LLM.</p>
+      <p>Mais à chaque fois que je relance une session, je dois lui redire quoi faire. Et mon collègue, sur son propre ordinateur, aimerait parler à mon collègue IA, lui aussi.</p>
+    </aside>
+  </section>
+
+  <section class="slide with-mascot" data-section="1" data-gear="2" aria-label="La mémoire sauvegardée">
+    <div class="mascot-swap">
+      <img class="mascot" src="assets/mascot/03-storage.svg" alt="Le collègue enfonce une disquette Git dans son crâne.">
+      <img class="mascot problem-mascot" src="assets/mascot/03-storage-problem.svg" alt="La disquette enfoncée, le collègue a l'air embarrassé, une goutte de sueur sur la tempe.">
+    </div>
+    <div class="stack">
+      <h2>Il se souvient : la mémoire sauvegardée</h2>
+      <div class="card"><h3>Bien</h3>En local, si tu travailles seul.</div>
+      <div class="card good"><h3>Mieux</h3>Un dépôt de code comme GitHub, partagé avec l'équipe.</div>
+      <div class="card warn step problem"><span class="problem-label">Problème</span>Sur une demande précise, il reste générique.</div>
+    </div>
+    <aside class="notes">
+      <p>On ajoute le stockage. Il ne se souvient de rien d'une session à l'autre : ce qu'il doit savoir est écrit quelque part, et il le relit en arrivant.</p>
+      <p>Bien : des fichiers en local, si tu veux travailler seul. Mieux : un dépôt de code, sur GitHub par exemple, versionné, partagé avec l'équipe et relu en PR.</p>
+      <p>Ici, on lui donne le support ; ce qu'on y écrit sur ton projet, c'est l'onboarding.</p>
+      <p>Malgré tout, quand je lui demande quelque chose de spécifique, il semble un peu perdu, ou me sort des choses génériques.</p>
+    </aside>
+  </section>
+
+  <section class="slide with-mascot" data-section="1" data-gear="3" aria-label="Les skills">
+    <div class="mascot-swap">
+      <img class="mascot" src="assets/mascot/04-skills.svg" alt="Le collègue lit une fiche à cases cochées qu'il tient à deux mains.">
+      <img class="mascot problem-mascot" src="assets/mascot/04-skills-overwhelmed.svg" alt="Le collègue se tient la tête à deux mains au milieu de recettes qui volent autour de lui.">
+    </div>
+    <div class="stack">
+      <h2>Il suit une procédure : les skills</h2>
+      <p class="lead">Une recette écrite pour une tâche précise.</p>
+      <span class="chips"><span class="chips-label">Exemples de skills</span><span class="chip">Écrire un message de commit</span><span class="chip">Relire une PR</span><span class="chip">Rédiger un ADR</span></span>
+      <div class="card warn step problem"><span class="problem-label">Problème</span>Des recettes partout : il ne sait plus où donner de la tête.</div>
+    </div>
+    <aside class="notes">
+      <p>Donnons-lui des recettes : les skills.</p>
+      <p>Une procédure écrite pour une tâche précise. Il la suit au lieu d'improviser : « chez moi, on cuit les pâtes dans cette casserole ».</p>
+      <p>Ok, mais c'est pénible à gérer, toutes ces recettes. Il y en a partout, et lui ne sait plus où donner de la tête.</p>
+    </aside>
+  </section>
+
+  <section class="slide with-mascot" data-section="1" data-gear="4" aria-label="Le framework de skills">
+    <div class="mascot-swap">
+      <img class="mascot" src="assets/mascot/05-framework.svg" alt="Le collègue lit un gros manuel ouvert, la fiche glissée dedans comme marque-page.">
+      <img class="mascot problem-mascot" src="assets/mascot/05-framework-problem.svg" alt="Le collègue lève les yeux de son manuel, perplexe, un point d'interrogation au-dessus de la tête.">
+    </div>
+    <div class="stack">
+      <h2>Une méthode complète : le framework de skills</h2>
+      <p class="lead">Les recettes rangées en une méthode, avec des étapes et des rôles.</p>
+      <span class="chips"><span class="chips-label">Exemples de frameworks</span><span class="chip">BMAD</span><span class="chip">Spec Kit</span><span class="chip">GSD</span></span>
+      <div class="card warn step problem"><span class="problem-label">Problème</span>Il ne connaît rien de notre boîte.</div>
+    </div>
+    <aside class="notes">
+      <p>Donnons-lui un vrai manuel : le framework.</p>
+      <p>Des skills qui s'enchaînent, avec des étapes et des rôles, du besoin jusqu'à la review. Le framework contient les skills : la recette lui sert de marque-page.</p>
+      <p>Cool, ton manuel. Mais il ne connaît rien de notre boîte !</p>
+    </aside>
+  </section>
+
+  <section class="slide with-mascot" data-section="1" data-gear="5" aria-label="Le SDLC d'entreprise">
+    <img class="mascot" src="assets/mascot/06-sdlc.svg" alt="Le collègue en tenue de l'entreprise, casquette sur la tête, lève le pouce.">
+    <div class="stack">
+      <h2>Nos règles du jeu : le SDLC d'entreprise</h2>
+      <p class="lead">Il surcharge le framework avec <strong>nos conventions, notre vocabulaire, nos skills</strong>.</p>
+    </div>
+    <aside class="notes">
+      <p>Hop : le SDLC d'entreprise, qui surcharge le framework.</p>
+      <p>La surcouche maison : nos conventions, notre vocabulaire, nos skills. On l'installe dans le projet dès la première PR.</p>
+    </aside>
+  </section>
+
+  <section class="slide" data-section="1" data-gear="5" aria-label="L'équiper, couche par couche">
+    <h2>L'équiper, couche par couche</h2>
+    <ol class="gear">
+      <li><img src="assets/mascot/01-llm.svg" alt="Une tête seule qui parle, avec une bulle."><span class="term">LLM</span><span class="gear-examples">ChatGPT · Gemini sur le web</span></li>
+      <li><img src="assets/mascot/02-harness.svg" alt="Le collègue a un corps et appuie sur le bouton de sa télécommande."><span class="term">Harnais</span><span class="gear-examples">Claude Code · Codex · Copilot</span></li>
+      <li><img src="assets/mascot/03-storage.svg" alt="Le collègue enfonce une disquette Git dans son crâne."><span class="term">Mémoire sauvegardée</span><span class="gear-examples">Des fichiers, mieux : un dépôt GitHub</span></li>
+      <li><img src="assets/mascot/04-skills.svg" alt="Le collègue lit une fiche à cases cochées."><span class="term">Skills</span><span class="gear-examples">Des recettes</span></li>
+      <li><img src="assets/mascot/05-framework.svg" alt="Le collègue lit un gros manuel, la fiche glissée dedans comme marque-page."><span class="term">Framework de skills</span><span class="gear-examples">BMAD · Spec Kit · GSD</span></li>
+      <li><img src="assets/mascot/06-sdlc.svg" alt="Le collègue en tenue de l'entreprise lève le pouce."><span class="term">SDLC d'entreprise</span><span class="gear-examples">La surcouche maison</span></li>
+    </ol>
+    <aside class="notes">
+      <p>Récapitulons : chaque couche répond à la limite de la précédente.</p>
+    </aside>
+  </section>
+
+  <section class="slide with-mascot hero" data-section="1" data-gear="5" aria-label="Il faut l'onboarder">
+    <img class="mascot" src="assets/mascot/06-sdlc.svg" alt="Le collègue en tenue de l'entreprise, casquette sur la tête, lève le pouce.">
+    <div class="stack">
+      <p class="big">Il connaît l'entreprise.</p>
+      <p class="big">Pas encore <span class="warn-text">ton projet</span>.</p>
+      <p class="big">Il faut <span class="good-text">l'onboarder</span>.</p>
+    </div>
+    <aside class="notes">
+      <p>Le voilà équipé : c'est ton collègue. Il connaît l'environnement de l'entreprise, ses règles et son vocabulaire.</p>
+      <p>Mais il ne connaît pas encore ton projet. Il faut l'onboarder.</p>
+    </aside>
+  </section>
+
+  <section class="slide legacy" aria-label="Le fil rouge">
     <h2>Une image pour toute la présentation</h2>
     <p class="lead">Un nouveau stagiaire, chaque matin.</p>
     <div class="grid cols-3">
@@ -154,7 +408,7 @@
     <p class="lead step"><strong>Donc :</strong> on le cadre, on lui fait écrire ce qui compte, on relit son travail et on corrige la cause de ses erreurs.</p>
   </section>
 
-  <section class="slide" aria-label="Les sept temps">
+  <section class="slide legacy" aria-label="Les sept temps">
     <h2>Sept temps</h2>
     <ol class="agenda">
       <li><span class="num">1</span><span class="name">La mécanique</span><span class="msg">Pourquoi l'IA oublie</span></li>
@@ -168,7 +422,7 @@
   </section>
 
   <!-- 1. Mécanique -->
-  <section class="slide" data-section="1" aria-label="LLM, harnais, agent">
+  <section class="slide legacy" data-section="1" aria-label="LLM, harnais, agent">
     <h2>LLM, harnais, agent : qui fait quoi ?</h2>
     <p class="lead">Comprendre pourquoi l'IA oublie explique toutes les autres pratiques.</p>
     <div class="flow">
@@ -197,7 +451,7 @@
     </div>
   </section>
 
-  <section class="slide" data-section="1" aria-label="La pile du prompt">
+  <section class="slide legacy" data-section="2" aria-label="La pile du prompt">
     <h2>Le prompt est une pile, reconstruite à chaque session</h2>
     <p class="lead">La réflexion vient du modèle. <strong>La connaissance métier vient de toi.</strong></p>
     <div style="display:flex;gap:40px;align-items:flex-start">
@@ -214,7 +468,7 @@
   </section>
 
   <!-- 2. Mémoire -->
-  <section class="slide" data-section="2" aria-label="La mémoire est le repo">
+  <section class="slide legacy" data-section="2" aria-label="La mémoire est le repo">
     <h2>Ce qui n'est pas commité est perdu</h2>
     <p class="lead">La session oublie. Le repo se souvient.</p>
     <div class="flow">
@@ -237,7 +491,7 @@
     <div class="card warn step">Fermer la session sans commiter : <strong>tout est oublié</strong>.</div>
   </section>
 
-  <section class="slide" data-section="2" aria-label="Où écrire quoi">
+  <section class="slide legacy" data-section="2" aria-label="Où écrire quoi">
     <h2>Où écrire quoi ?</h2>
     <p class="lead">Une seule source de vérité pour les instructions.</p>
     <div class="stack">
@@ -249,7 +503,7 @@
   </section>
 
   <!-- 3. Sessions -->
-  <section class="slide" data-section="3" aria-label="Une session, un objectif, une PR">
+  <section class="slide legacy" data-section="2" aria-label="Une session, un objectif, une PR">
     <h2>Une session, un objectif, une PR</h2>
     <p class="lead">Même logique que « un commit = une chose ».</p>
     <div class="flow">
@@ -261,7 +515,7 @@
     <div class="card warn step"><strong>Session qui grossit :</strong> compaction arbitraire, qualité en baisse, coût en tokens en hausse.</div>
   </section>
 
-  <section class="slide" data-section="3" aria-label="Isoler le contexte">
+  <section class="slide legacy" data-section="2" aria-label="Isoler le contexte">
     <h2>Isoler le contexte</h2>
     <p class="lead">Moins de contexte pollué, moins d'hallucinations.</p>
     <div class="grid cols-2">
@@ -281,7 +535,7 @@
   </section>
 
   <!-- 4. Méthode -->
-  <section class="slide" data-section="4" aria-label="Skill, BMAD, SDLC">
+  <section class="slide legacy" data-section="1" aria-label="Skill, BMAD, SDLC">
     <h2>Skill, BMAD, SDLC : des recettes emboîtées</h2>
     <p class="lead">Un skill guide l'IA comme une recette : « chez moi, on cuit les pâtes dans cette casserole ».</p>
     <div class="stack">
@@ -296,7 +550,7 @@
     </div>
   </section>
 
-  <section class="slide" data-section="4" aria-label="Un cadre, pas une obligation">
+  <section class="slide legacy" data-section="1" aria-label="Un cadre, pas une obligation">
     <h2>Un cadre, pas une obligation</h2>
     <p class="lead">Le bon niveau de méthode dépend de la tâche.</p>
     <div class="grid cols-2">
@@ -308,7 +562,7 @@
   </section>
 
   <!-- 5. Connaissance -->
-  <section class="slide" data-section="5" aria-label="Onboarder le stagiaire">
+  <section class="slide legacy" data-section="2" aria-label="Onboarder le stagiaire">
     <h2>Onboarder le stagiaire</h2>
     <p class="lead">Le coût est au départ. Ensuite, le repo se réutilise.</p>
     <div style="display:grid;grid-template-columns:.8fr 1.2fr;gap:20px">
@@ -325,7 +579,7 @@
     </div>
   </section>
 
-  <section class="slide" data-section="5" aria-label="Un repo de connaissance pour plusieurs projets">
+  <section class="slide legacy" data-section="2" aria-label="Un repo de connaissance pour plusieurs projets">
     <h2>Un repo de connaissance, plusieurs projets</h2>
     <p class="lead">Un lien dans <code>agent.md</code> suffit à brancher une session sur la bonne source.</p>
     <div class="flow">
@@ -337,7 +591,7 @@
   </section>
 
   <!-- 6. Cadrage -->
-  <section class="slide" data-section="6" aria-label="Cadrer la sortie">
+  <section class="slide legacy" data-section="3" aria-label="Cadrer la sortie">
     <h2>Cadrer ce qu'on attend en sortie</h2>
     <p class="lead">Sans cadre, l'IA invente son vocabulaire, son format et sa complexité.</p>
     <div class="grid cols-3">
@@ -351,7 +605,7 @@
   </section>
 
   <!-- 7. Relecture -->
-  <section class="slide" data-section="7" aria-label="Corriger la cause">
+  <section class="slide legacy" data-section="3" aria-label="Corriger la cause">
     <h2>Corriger la cause, pas le symptôme</h2>
     <p class="lead">Un « retire ça » sans règle écrite, et l'erreur revient.</p>
     <div class="grid cols-2">
@@ -374,7 +628,7 @@
     </div>
   </section>
 
-  <section class="slide" data-section="7" aria-label="Relire la PR comme un collègue">
+  <section class="slide legacy" data-section="3" aria-label="Relire la PR comme un collègue">
     <h2>La PR se relit comme celle d'un collègue</h2>
     <p class="lead">Relire beaucoup au début, de moins en moins ensuite.</p>
     <div class="flow">
@@ -384,7 +638,7 @@
     </div>
   </section>
 
-  <section class="slide" data-section="7" aria-label="Garder le pourquoi">
+  <section class="slide legacy" data-section="3" aria-label="Garder le pourquoi">
     <h2>Garder le pourquoi, s'adapter</h2>
     <p class="lead">Une pratique durable laisse une trace et s'ajuste à celui qui l'utilise.</p>
     <div class="grid cols-3">
@@ -395,7 +649,7 @@
   </section>
 
   <!-- Clôture -->
-  <section class="slide" aria-label="Posture">
+  <section class="slide legacy" aria-label="Posture">
     <h2>La posture</h2>
     <div class="grid cols-2" style="margin-top:20px">
       <div class="card step"><p class="big">Pas un moteur de recherche.</p><p style="margin-top:14px">On lui demande, on lui explique, on relit. On ne va pas chercher à sa place sur Google.</p></div>
@@ -403,7 +657,7 @@
     </div>
   </section>
 
-  <section class="slide" aria-label="Le stagiaire en sept phrases">
+  <section class="slide legacy" aria-label="Le stagiaire en sept phrases">
     <h2>Le stagiaire, en sept phrases</h2>
     <ol class="sevens">
       <li class="step"><span class="num">1</span><span>Il ne retient rien : il faut comprendre pourquoi.</span></li>
@@ -419,14 +673,25 @@
   <div id="counter"></div>
 </div>
 <div id="progress"></div>
+<div id="notes" aria-live="polite"><div id="notes-text"></div></div>
 
 <script>
-  const SECTION_LABELS = ["Mécanique", "Mémoire", "Sessions", "Méthode", "Connaissance", "Cadrage", "Relecture"];
+  const EQUIPMENT = [
+    { label: "Télécommande", icon: "remote" },
+    { label: "Disquette", icon: "floppy" },
+    { label: "Recette", icon: "recipe" },
+    { label: "Manuel", icon: "manual" },
+    { label: "Casquette", icon: "cap" },
+  ];
+  const SECTION_LABELS = ["L'équiper", "L'onboarder", "Ses traits"];
 
   const stage = document.getElementById("stage");
   const tracker = document.getElementById("tracker");
+  const inventory = document.getElementById("inventory");
+  const inventorySlots = inventory.querySelector(".slots");
   const counter = document.getElementById("counter");
   const progress = document.getElementById("progress");
+  const notesText = document.getElementById("notes-text");
   const slides = [...document.querySelectorAll(".slide")];
 
   SECTION_LABELS.forEach((label, i) => {
@@ -435,14 +700,27 @@
     tracker.append(item);
   });
 
+  EQUIPMENT.forEach(({ label, icon }, i) => {
+    const item = document.createElement("li");
+    item.title = label;
+    item.style.setProperty("--i", i);
+    item.innerHTML = `<img src="assets/mascot/items/${icon}.svg" alt="${label}">`;
+    inventorySlots.append(item);
+  });
+
   let currentIndex = 0;
 
   const stepsOf = (slide) => [...slide.querySelectorAll(".step")];
 
+  // Same ratio as the width of #notes in the CSS.
+  const NOTES_WIDTH_RATIO = 0.38;
+
   function fitStageToWindow() {
-    const scale = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    const isNotesOpen = document.body.classList.contains("notes-open");
+    const availableWidth = isNotesOpen ? window.innerWidth * (1 - NOTES_WIDTH_RATIO) : window.innerWidth;
+    const scale = Math.min(availableWidth / 1280, window.innerHeight / 720);
     stage.style.transform = `scale(${scale})`;
-    stage.style.left = `${(window.innerWidth - 1280 * scale) / 2}px`;
+    stage.style.left = `${(availableWidth - 1280 * scale) / 2}px`;
     stage.style.top = `${(window.innerHeight - 720 * scale) / 2}px`;
   }
 
@@ -455,11 +733,38 @@
     });
   }
 
+  // The item just received pops; once every slot is filled, a halo and sparkles surround the inventory.
+  function updateInventory(slide) {
+    const hasInventory = slide.dataset.gear !== undefined;
+    const receivedCount = Number(slide.dataset.gear || 0);
+    const isFull = receivedCount === EQUIPMENT.length;
+    inventory.classList.toggle("hidden", !hasInventory);
+    inventory.classList.toggle("full", isFull);
+    [...inventorySlots.children].forEach((item, i) => {
+      item.classList.toggle("received", i < receivedCount);
+      item.classList.toggle("new", !isFull && i === receivedCount - 1);
+    });
+  }
+
+  function showNotesOf(slide) {
+    const notes = slide.querySelector("aside.notes");
+    notesText.innerHTML = notes ? notes.innerHTML : '<p class="empty">Pas de notes pour cette slide.</p>';
+  }
+
+  // ?notes in the URL keeps the notes open on reload or when sharing the link.
+  function toggleNotes() {
+    const isOpen = document.body.classList.toggle("notes-open");
+    history.replaceState(null, "", `${isOpen ? "?notes" : location.pathname}${location.hash}`);
+    fitStageToWindow();
+  }
+
   function showSlide(index, revealAllSteps) {
     currentIndex = index;
     slides.forEach((slide, i) => slide.classList.toggle("active", i === index));
     stepsOf(slides[index]).forEach((step) => step.classList.toggle("shown", revealAllSteps));
     updateTracker(slides[index]);
+    updateInventory(slides[index]);
+    showNotesOf(slides[index]);
     counter.textContent = `${index + 1} / ${slides.length}`;
     progress.style.width = `${((index + 1) / slides.length) * 100}%`;
     history.replaceState(null, "", `#${index + 1}`);
@@ -483,6 +788,7 @@
     else if (["ArrowLeft", "ArrowUp", "PageUp", "Backspace"].includes(event.key)) goBack();
     else if (event.key === "Home") showSlide(0, false);
     else if (event.key === "End") showSlide(slides.length - 1, true);
+    else if (event.key.toLowerCase() === "n") toggleNotes();
     else if (event.key.toLowerCase() === "f") {
       if (document.fullscreenElement) document.exitFullscreen();
       else document.documentElement.requestFullscreen();
@@ -501,6 +807,7 @@
   });
 
   window.addEventListener("resize", fitStageToWindow);
+  document.body.classList.toggle("notes-open", new URLSearchParams(location.search).has("notes"));
   fitStageToWindow();
 
   const slideFromHash = Number(location.hash.slice(1)) - 1;

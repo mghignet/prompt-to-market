@@ -1,6 +1,7 @@
-// Generates the six mascot levels (cumulative equipment) and an overview sheet.
+// Generates the hello, pensive, overwhelmed and RAG poses, the six mascot levels (cumulative equipment),
+// their problem variants, an overview sheet and the inventory icons.
 // Usage: node assets/mascot/build.mjs
-import { writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -19,7 +20,7 @@ const C = {
   pants: "#56657F",
   shoe: "#FFFFFF",
   floppy: "#1F9D6E",
-  runButton: "#FF4B3E",
+  remoteButton: "#FF4B3E",
   metal: "#B7C0CE",
   paper: "#FFFFFF",
   paperLine: "#9AA3B5",
@@ -42,12 +43,12 @@ const LEVELS = [
   {
     file: "02-harness.svg",
     label: "2 · Harnais (agent)",
-    desc: "Le harnais lui donne un corps : il tient son bouton Run de poche et appuie dessus lui-même, il agit sur son environnement.",
+    desc: "Le harnais lui donne un corps : il tient sa télécommande et appuie lui-même sur le bouton, il agit sur son environnement.",
   },
   {
     file: "03-storage.svg",
     label: "3 · Stockage (Git)",
-    desc: "Son bouton Run en main, il enfonce une disquette Git dans son crâne : sa mémoire durable est un support externe qu'il recharge à chaque session.",
+    desc: "Sa télécommande en main, il enfonce une disquette Git dans son crâne : sa mémoire durable est un support externe qu'il recharge à chaque session.",
   },
   {
     file: "04-skills.svg",
@@ -63,6 +64,82 @@ const LEVELS = [
     file: "06-sdlc.svg",
     label: "6 · SDLC d'entreprise",
     desc: "Habillé tout en bleu avec la casquette et le logo maison, face à nous, le manuel sous le bras et le pouce levé : il est intégré à l'équipe et travaille avec nos règles, notre vocabulaire et nos pratiques.",
+  },
+];
+
+// Not levels: before we equip him, he says hello, then wonders where to start. No prop at all.
+const HELLO = {
+  file: "00-hello.svg",
+  label: "Bonjour",
+  desc: "Le collègue en pied, sans aucun équipement, qui nous fait coucou de la main en souriant.",
+};
+const HELLO_LEVEL = 0;
+
+const PENSIVE = {
+  file: "00-pensive.svg",
+  label: "Pensif",
+  desc: "Le collègue en pied, sans aucun équipement, la main sous le menton et le regard en l'air : il arrive les mains vides et se demande par où commencer.",
+};
+const PENSIVE_LEVEL = -1;
+
+// Between skills and framework: he has the floppy but not the cap yet, and too many recipes.
+const OVERWHELMED = {
+  file: "04-skills-overwhelmed.svg",
+  label: "Débordé",
+  desc: "Le collègue, la disquette dans le crâne, se tient la tête à deux mains au milieu de fiches de recettes qui volent autour de lui : il ne sait plus où donner de la tête.",
+};
+const OVERWHELMED_LEVEL = 4.5;
+
+// Between LLM and harness: still a head only, but he reads your documents before answering.
+const RAG = {
+  file: "01-rag.svg",
+  label: "RAG",
+  desc: "Toujours une tête seule qui parle, mais une pile de documents à côté d'elle : il les lit avant de répondre.",
+};
+const RAG_LEVEL = 1.5;
+const isHeadOnly = (level) => level === 1 || level === RAG_LEVEL;
+
+// Same equipment, troubled face: the slides swap to these when they reveal the level's limit.
+const PROBLEM_POSES = [
+  {
+    level: 1,
+    file: "01-llm-problem.svg",
+    label: "LLM seul, coincé",
+    desc: "La tête seule, l'air gêné et une goutte de sueur : il parle, mais il ne peut rien faire.",
+    face: { brows: "worried", eye: { pupil: 6.5, look: [0, 3] }, mouth: "awkward" },
+    extras: () => sweatDrop(68, 92),
+  },
+  {
+    level: RAG_LEVEL,
+    file: "01-rag-problem.svg",
+    label: "RAG, coincé",
+    desc: "La tête seule à côté de ses documents, l'air gêné et une goutte de sueur : il lit, mais n'agit toujours pas.",
+    face: { brows: "worried", eye: { pupil: 6.5, look: [0, 3] }, mouth: "awkward" },
+    extras: () => sweatDrop(68, 92),
+  },
+  {
+    level: 2,
+    file: "02-harness-problem.svg",
+    label: "Harnais, amnésique",
+    desc: "Il regarde en l'air, bouche bée, une bulle de pensée vide au-dessus de la tête : il a tout oublié depuis la dernière session.",
+    face: { brows: "raised", eye: { pupil: 5, look: [-5, -6] }, mouth: "oh" },
+    extras: () => emptyThought(),
+  },
+  {
+    level: 3,
+    file: "03-storage-problem.svg",
+    label: "Stockage, générique",
+    desc: "La disquette enfoncée, il a l'air embarrassé, une goutte de sueur sur la tempe : sur une demande précise, il reste générique.",
+    face: { brows: "worried", eye: { pupil: 7, look: [5, 1] }, mouth: "pensive", tilt: -12 },
+    extras: () => sweatDrop(78, 84),
+  },
+  {
+    level: 5,
+    file: "05-framework-problem.svg",
+    label: "Framework, perdu",
+    desc: "Il lève les yeux de son manuel, perplexe, un point d'interrogation au-dessus de la tête : il ne connaît rien de notre entreprise.",
+    face: { brows: "skeptical", eye: { pupil: 6, look: [-4, -5] }, mouth: "oh" },
+    extras: () => questionMark(118, 44),
   },
 ];
 
@@ -98,13 +175,63 @@ const thumbsUp = ([x, y]) =>
   `<rect x="${x - 16}" y="${y - 10}" width="32" height="28" rx="11" fill="${C.skin}"/>` +
   `<path d="M${x - 9} ${y}H${x + 9}M${x - 9} ${y + 8}H${x + 9}" fill="none" stroke-width="3"/>`;
 
+// Open palm with spread fingers; the palm is drawn last to hide the finger joints.
+const wavingHand = ([x, y]) =>
+  [-36, -12, 12, 36]
+    .map((angle) => `<rect x="${x - 5}" y="${y - 38}" width="10" height="30" rx="5" fill="${C.skin}" transform="rotate(${angle} ${x} ${y})"/>`)
+    .join("") +
+  `<rect x="${x - 5}" y="${y - 27}" width="10" height="20" rx="5" fill="${C.skin}" transform="rotate(-108 ${x} ${y})"/>` +
+  `<circle cx="${x}" cy="${y}" r="17" fill="${C.skin}"/>` +
+  `<path d="M${x + 30} ${y - 30}Q${x + 38} ${y - 12} ${x + 30} ${y + 6}M${x + 42} ${y - 38}Q${x + 52} ${y - 12} ${x + 42} ${y + 14}" fill="none" stroke-width="4"/>`;
+
+const flyingRecipes = () =>
+  [
+    [-150, 244, -24],
+    [152, 250, 18],
+    [-150, 384, 12],
+    [150, 392, -16],
+    [134, 92, 26],
+  ]
+    .map(([x, y, angle]) => sheet(x, y, angle, 0.75))
+    .join("");
+
+const sweatDrop = (x, y) =>
+  `<path d="M${x} ${y - 16}C${x + 6} ${y - 6} ${x + 10} ${y} ${x + 10} ${y + 6}A10 10 0 0 1 ${x - 10} ${y + 6}C${x - 10} ${y} ${x - 6} ${y - 6} ${x} ${y - 16}Z" fill="${C.cyan}" stroke-width="4"/>`;
+
+const emptyThought = () =>
+  `<circle cx="-92" cy="80" r="6" fill="${C.paper}" stroke-width="4"/>` +
+  `<circle cx="-110" cy="58" r="9" fill="${C.paper}" stroke-width="4"/>` +
+  `<ellipse cx="-146" cy="30" rx="34" ry="24" fill="${C.paper}" stroke-width="4"/>`;
+
+const questionMark = (x, y) =>
+  `<path d="M${x - 12} ${y - 14}Q${x - 12} ${y - 30} ${x + 2} ${y - 30}Q${x + 16} ${y - 30} ${x + 16} ${y - 16}Q${x + 16} ${y - 6} ${x + 4} ${y}Q${x} ${y + 3} ${x} ${y + 12}" fill="none" stroke-width="7"/>` +
+  `<circle cx="${x}" cy="${y + 26}" r="4" fill="${C.ink}" stroke="none"/>`;
+
+const documentStack = () => `
+  <g transform="translate(-142 152) rotate(-8)">
+    <rect x="-24" y="-34" width="52" height="66" rx="4" fill="${C.paper}" stroke-width="4"/>
+    <rect x="-30" y="-38" width="52" height="66" rx="4" fill="${C.paper}" stroke-width="4"/>
+    <rect x="-36" y="-42" width="52" height="66" rx="4" fill="${C.paper}" stroke-width="4"/>
+    <path d="M-28 -28H8M-28 -18H8M-28 -8H0M-28 2H8M-28 12H-4" fill="none" stroke="${C.paperLine}" stroke-width="3.5"/>
+  </g>
+  <path d="M-112 100Q-104 74 -88 82" fill="none" stroke-width="4" stroke-dasharray="1 9"/>`;
+
+const thoughtDots = () =>
+  [
+    [-92, 80, 6],
+    [-112, 56, 9],
+    [-138, 24, 13],
+  ]
+    .map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${C.paper}" stroke-width="4"/>`)
+    .join("");
+
 const sparkle = (x, y, s) =>
   `<path d="M${x} ${y - s} Q${x} ${y} ${x + s} ${y} Q${x} ${y} ${x} ${y + s} Q${x} ${y} ${x - s} ${y} Q${x} ${y} ${x} ${y - s} Z" fill="${C.gold}" stroke-width="3"/>`;
 
 // --- Props held in the hands -------------------------------------------------
 
-const sheet = () => `
-  <g transform="translate(60 300) rotate(-12)">
+const sheet = (x = 60, y = 300, angle = -12, scale = 1) => `
+  <g transform="translate(${x} ${y}) rotate(${angle}) scale(${scale})">
     <rect x="-38" y="-48" width="76" height="96" rx="4" fill="${C.paper}" stroke-width="4.5"/>
     <rect x="-28" y="-38" width="36" height="8" rx="2" fill="${C.gold}" stroke="none"/>
     ${[-18, -2, 14, 30]
@@ -153,21 +280,33 @@ const closedBook = () => `
     <path d="M-12 28H22M-6 38H16" fill="none" stroke="${C.paper}" stroke-width="4"/>
   </g>`;
 
-// Pocket Run button; (x, y) is the top-left corner of its case.
-const runRemote = (x, y) => `
-  <rect x="${x}" y="${y}" width="52" height="38" rx="8" fill="${C.ink}"/>
-  <path d="M${x + 10} ${y + 2}Q${x + 26} ${y - 20} ${x + 42} ${y + 2}Z" fill="${C.runButton}"/>
-  <path d="M${x + 19} ${y + 10}L${x + 34} ${y + 19}L${x + 19} ${y + 28}Z" fill="${C.paper}" stroke="none"/>`;
+// TV remote; (x, y) is the top-left corner of its case. The red button is what he presses.
+const REMOTE_WIDTH = 30;
+const tvRemote = (x, y) => {
+  const cx = x + REMOTE_WIDTH / 2;
+  const buttonRows = [30, 44, 58]
+    .map(
+      (dy) =>
+        `<circle cx="${cx - 6}" cy="${y + dy}" r="3.5" fill="${C.metal}" stroke="none"/>` +
+        `<circle cx="${cx + 6}" cy="${y + dy}" r="3.5" fill="${C.metal}" stroke="none"/>`,
+    )
+    .join("");
+  return (
+    `<rect x="${x}" y="${y}" width="${REMOTE_WIDTH}" height="76" rx="10" fill="${C.ink}"/>` +
+    `<circle cx="${cx}" cy="${y + 13}" r="6" fill="${C.remoteButton}" stroke="none"/>` +
+    buttonRows
+  );
+};
 
-const pressLines = () => `<path d="M-24 290L-32 284M44 290L52 284M-26 302H-36M46 302H56" fill="none" stroke-width="4"/>`;
+const pressLines = () => `<path d="M-20 290L-28 284M24 290L32 284M-22 300H-32M26 300H36" fill="none" stroke-width="4"/>`;
 
 // The palm sits behind the case; thumb and fingers wrap its edges.
 const handHoldingRemote = ([x, y]) =>
   hand([x, y]) +
-  runRemote(x - 26, y - 30) +
-  `<ellipse cx="${x - 26}" cy="${y - 10}" rx="6" ry="9" fill="${C.skin}"/>` +
-  `<ellipse cx="${x + 26}" cy="${y - 16}" rx="6" ry="6" fill="${C.skin}"/>` +
-  `<ellipse cx="${x + 26}" cy="${y - 4}" rx="6" ry="6" fill="${C.skin}"/>`;
+  tvRemote(x - REMOTE_WIDTH / 2, y - 44) +
+  `<ellipse cx="${x - 15}" cy="${y - 12}" rx="6" ry="9" fill="${C.skin}"/>` +
+  `<ellipse cx="${x + 15}" cy="${y - 18}" rx="6" ry="6" fill="${C.skin}"/>` +
+  `<ellipse cx="${x + 15}" cy="${y - 6}" rx="6" ry="6" fill="${C.skin}"/>`;
 
 const pointingHand = ([x, y]) =>
   `<rect x="${x - 5}" y="${y}" width="10" height="26" rx="5" fill="${C.skin}"/>` +
@@ -176,14 +315,26 @@ const pointingHand = ([x, y]) =>
 // --- Bodies ------------------------------------------------------------------
 
 // Arm poses of the front-facing levels. A hand marked overHead touches the
-// floppy, so it is drawn after the head.
+// head (floppy, chin), so it is drawn after the head.
 const LEFT_SHOULDER = [-48, 252];
 const RIGHT_SHOULDER = [48, 252];
 
 const FRONT_ARMS = {
+  [HELLO_LEVEL]: {
+    left: { shoulder: LEFT_SHOULDER, control: [-84, 300], end: [-90, 350], hand: [-92, 360] },
+    right: { shoulder: RIGHT_SHOULDER, control: [128, 250], end: [122, 182], waving: [122, 164] },
+  },
+  [OVERWHELMED_LEVEL]: {
+    left: { shoulder: LEFT_SHOULDER, control: [-124, 250], end: [-94, 180], hand: [-90, 170], overHead: true },
+    right: { shoulder: RIGHT_SHOULDER, control: [124, 250], end: [94, 180], hand: [90, 170], overHead: true },
+  },
+  [PENSIVE_LEVEL]: {
+    left: { shoulder: LEFT_SHOULDER, control: [-72, 326], end: [18, 300], hand: [26, 300] },
+    right: { shoulder: RIGHT_SHOULDER, control: [116, 300], end: [40, 228], hand: [34, 216], overHead: true },
+  },
   2: {
     left: { shoulder: LEFT_SHOULDER, control: [-84, 330], end: [-6, 342], hand: [2, 342] },
-    right: { shoulder: RIGHT_SHOULDER, control: [92, 310], end: [20, 270], pointing: [10, 266] },
+    right: { shoulder: RIGHT_SHOULDER, control: [92, 310], end: [16, 270], pointing: [4, 266] },
   },
   3: {
     left: { shoulder: LEFT_SHOULDER, control: [-116, 250], end: [-110, 182], hand: [-108, 174], overHead: true },
@@ -198,12 +349,13 @@ const FRONT_ARMS = {
 const drawHand = (arm) => {
   if (arm.overHead) return "";
   if (arm.thumbsUp) return thumbsUp(arm.thumbsUp);
+  if (arm.waving) return wavingHand(arm.waving);
   if (arm.pointing) return pointingHand(arm.pointing);
   if (arm.holdsRemote) return handHoldingRemote(arm.holdsRemote);
   return hand(arm.hand);
 };
 
-const FRONT_PROPS = { 2: () => runRemote(-16, 302) + pressLines(), 3: () => "", 6: closedBook };
+const FRONT_PROPS = { [HELLO_LEVEL]: () => "", [PENSIVE_LEVEL]: () => "", [OVERWHELMED_LEVEL]: () => "", 2: () => tvRemote(-13, 284) + pressLines(), 3: () => "", 6: closedBook };
 
 const frontBody = (level) => {
   const { shirt, pants } = outfit(level);
@@ -257,6 +409,10 @@ const readingBody = (level) => {
 
 // Expression goes from vacant (level 1) to confident and "boosted" (level 6).
 const FACE = {
+  [RAG_LEVEL]: { brows: "raised", eye: { pupil: 7, look: [-5, 2] }, mouth: "talk" },
+  [OVERWHELMED_LEVEL]: { brows: "worried", eye: { pupil: 5.5, look: [0, 1] }, mouth: "wavy" },
+  [PENSIVE_LEVEL]: { brows: "raised", eye: { pupil: 7, look: [-6, -7] }, mouth: "pensive", tilt: -6 },
+  [HELLO_LEVEL]: { brows: "happy", eye: { pupil: 7, look: [0, 0] }, mouth: "bigSmile", tilt: 6 },
   1: { brows: "raised", eye: { pupil: 7, look: [3, -1] }, mouth: "talk" },
   2: { brows: "neutral", eye: { pupil: 7, look: [0, 7] }, mouth: "smile" },
   3: { brows: "neutral", eye: { pupil: 7, look: [-6, -4] }, mouth: "bigSmile", tilt: -12 },
@@ -303,6 +459,10 @@ const browPath = (style, x, isLeftEye) => {
       return isLeftEye ? `M${x - w} ${y - 33}L${x + w} ${y - 28}` : `M${x - w} ${y - 28}L${x + w} ${y - 33}`;
     case "confident":
       return isLeftEye ? `M${x - w} ${y - 29}Q${x} ${y - 33} ${x + w} ${y - 29}` : `M${x - w} ${y - 33}Q${x} ${y - 44} ${x + w} ${y - 36}`;
+    case "skeptical":
+      return isLeftEye ? `M${x - w} ${y - 29}Q${x} ${y - 33} ${x + w} ${y - 30}` : `M${x - w} ${y - 36}Q${x} ${y - 46} ${x + w} ${y - 38}`;
+    case "worried":
+      return isLeftEye ? `M${x - w} ${y - 30}Q${x} ${y - 32} ${x + w} ${y - 40}` : `M${x - w} ${y - 40}Q${x} ${y - 32} ${x + w} ${y - 30}`;
     case "happy":
       return `M${x - w} ${y - 29}Q${x} ${y - 40} ${x + w} ${y - 29}`;
     default:
@@ -334,6 +494,14 @@ const mouth = (style, x) => {
   switch (style) {
     case "talk":
       return `<path d="M${x - 12} ${y - 4}Q${x} ${y - 7} ${x + 12} ${y - 4}Q${x + 10} ${y + 13} ${x} ${y + 13}Q${x - 10} ${y + 13} ${x - 12} ${y - 4}Z" fill="${C.mouth}" stroke-width="4"/>`;
+    case "awkward":
+      return `<path d="M${x - 14} ${y + 2}Q${x - 4} ${y + 6} ${x + 4} ${y}Q${x + 10} ${y - 4} ${x + 15} ${y - 2}" fill="none"/>`;
+    case "oh":
+      return `<ellipse cx="${x}" cy="${y + 4}" rx="6" ry="7" fill="${C.mouth}" stroke-width="4"/>`;
+    case "wavy":
+      return `<path d="M${x - 16} ${y}Q${x - 8} ${y - 7} ${x} ${y}Q${x + 8} ${y + 7} ${x + 16} ${y}" fill="none"/>`;
+    case "pensive":
+      return `<path d="M${x - 9} ${y + 2}Q${x + 2} ${y - 1} ${x + 10} ${y + 3}" fill="none"/>`;
     case "smile":
       return `<path d="M${x - 14} ${y - 2}Q${x} ${y + 8} ${x + 14} ${y - 2}" fill="none"/>`;
     case "bigSmile":
@@ -377,10 +545,9 @@ const floppy = (isBeingInserted) => `
     <circle cx="-3" cy="-6" r="3.5" fill="${C.floppy}" stroke-width="2.5"/>
   </g>`;
 
-const head = (level) => {
+const head = (level, face = FACE[level]) => {
   const viewName = isReading(level) ? "threeQuarter" : "front";
   const view = HEAD_VIEW[viewName];
-  const face = FACE[level];
   const [leftEye, rightEye] = view.eyes;
   const lensR = (e) => (e.rx < 15 ? 19 : 22);
   return `
@@ -421,31 +588,49 @@ const cap = () => `
 // --- Assembly ----------------------------------------------------------------
 
 const body = (level) => {
-  if (level === 1) return "";
+  if (isHeadOnly(level)) return "";
   return isReading(level) ? readingBody(level) : frontBody(level);
 };
 
-const character = (level) => `
+// Hands that touch the head are drawn after it.
+const overHeadHands = (level) => {
+  const arms = FRONT_ARMS[level];
+  if (!arms) return "";
+  return [arms.left, arms.right]
+    .filter((arm) => arm.overHead)
+    .map((arm) => hand(arm.hand))
+    .join("");
+};
+
+// A problem pose keeps the level's equipment but swaps the face and adds its extras.
+const character = (level, problem) => `
 <g transform="translate(215 0)" stroke="${C.ink}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-  ${body(level)}
-  ${head(level)}
-  ${level === 3 ? hand(FRONT_ARMS[3].left.hand) : ""}
-  ${level === 1 ? speechBubble() : ""}
-  ${level >= 6 ? sparkle(-128, 196, 12) + sparkle(112, 52, 16) + sparkle(130, 98, 9) : ""}
+  ${level === OVERWHELMED_LEVEL ? flyingRecipes() : ""}${level === RAG_LEVEL ? documentStack() : ""}${body(level)}
+  ${head(level, problem?.face)}
+  ${overHeadHands(level)}${level === PENSIVE_LEVEL ? thoughtDots() : ""}
+  ${isHeadOnly(level) ? speechBubble() : ""}
+  ${level >= 6 ? sparkle(-128, 196, 12) + sparkle(112, 52, 16) + sparkle(130, 98, 9) : ""}${problem ? problem.extras() : ""}
 </g>`;
 
 const W = 400;
 const H = 500;
 
-LEVELS.forEach(({ file, label, desc }, i) => {
+const writeCharacterSvg = ({ file, label, desc }, level, problem) => {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img">
 <title>Le collègue IA — ${label}</title>
 <desc>${desc}</desc>
-${character(i + 1)}
+${character(level, problem)}
 </svg>
 `;
   writeFileSync(join(outDir, file), svg);
-});
+};
+
+writeCharacterSvg(HELLO, HELLO_LEVEL);
+writeCharacterSvg(PENSIVE, PENSIVE_LEVEL);
+writeCharacterSvg(OVERWHELMED, OVERWHELMED_LEVEL);
+writeCharacterSvg(RAG, RAG_LEVEL);
+PROBLEM_POSES.forEach((pose) => writeCharacterSvg(pose, pose.level, pose));
+LEVELS.forEach((level, i) => writeCharacterSvg(level, i + 1));
 
 const LABEL_H = 60;
 const overview = `<svg xmlns="http://www.w3.org/2000/svg" width="${W * 6}" height="${H + LABEL_H}" viewBox="0 0 ${W * 6} ${H + LABEL_H}" role="img">
@@ -458,3 +643,23 @@ ${LEVELS.map(
 </svg>
 `;
 writeFileSync(join(outDir, "overview.svg"), overview);
+
+// Inventory icons for the slides: the item he receives at each level, cropped from the props above.
+const ITEMS = [
+  { file: "remote.svg", label: "Télécommande", viewBox: "-28 -5 86 86", draw: () => tvRemote(0, 0) },
+  { file: "floppy.svg", label: "Disquette", viewBox: "-150 -90 108 108", draw: () => floppy(false) },
+  { file: "recipe.svg", label: "Recette", viewBox: "-54 -54 108 108", draw: () => sheet(0, 0, 0) },
+  { file: "manual.svg", label: "Manuel", viewBox: "15 235 140 140", draw: closedBook },
+  { file: "cap.svg", label: "Casquette", viewBox: "-75 -149 150 150", draw: cap },
+];
+
+const itemsDir = join(outDir, "items");
+mkdirSync(itemsDir, { recursive: true });
+ITEMS.forEach(({ file, label, viewBox, draw }) => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" role="img">
+<title>${label}</title>
+<g stroke="${C.ink}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">${draw()}</g>
+</svg>
+`;
+  writeFileSync(join(itemsDir, file), svg);
+});

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="400" height="500" viewBox="0 0 400 500" role="img">
 <title>Le collègue IA — 3 · Stockage (Git)</title>
-<desc>Son bouton Run en main, il enfonce une disquette Git dans son crâne : sa mémoire durable est un support externe qu'il recharge à chaque session.</desc>
+<desc>Sa télécommande en main, il enfonce une disquette Git dans son crâne : sa mémoire durable est un support externe qu'il recharge à chaque session.</desc>
 
 <g transform="translate(215 0)" stroke="#1F2544" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
   
@@ -16,10 +16,7 @@
   <path d="M48 252Q80 300 86 336" fill="none" stroke="#1F2544" stroke-width="27"/><path d="M48 252Q80 300 86 336" fill="none" stroke="#F6C9A8" stroke-width="17"/><path d="M48 252L66.9 280.3" fill="none" stroke="#1F2544" stroke-width="38"/><path d="M48 252L66.9 280.3" fill="none" stroke="#DDE2EA" stroke-width="29"/>
   
   
-  <circle cx="88" cy="348" r="14" fill="#F6C9A8"/>
-  <rect x="62" y="318" width="52" height="38" rx="8" fill="#1F2544"/>
-  <path d="M72 320Q88 298 104 320Z" fill="#FF4B3E"/>
-  <path d="M81 328L96 337L81 346Z" fill="#FFFFFF" stroke="none"/><ellipse cx="62" cy="338" rx="6" ry="9" fill="#F6C9A8"/><ellipse cx="114" cy="332" rx="6" ry="6" fill="#F6C9A8"/><ellipse cx="114" cy="344" rx="6" ry="6" fill="#F6C9A8"/>
+  <circle cx="88" cy="348" r="14" fill="#F6C9A8"/><rect x="73" y="304" width="30" height="76" rx="10" fill="#1F2544"/><circle cx="88" cy="317" r="6" fill="#FF4B3E" stroke="none"/><circle cx="82" cy="334" r="3.5" fill="#B7C0CE" stroke="none"/><circle cx="94" cy="334" r="3.5" fill="#B7C0CE" stroke="none"/><circle cx="82" cy="348" r="3.5" fill="#B7C0CE" stroke="none"/><circle cx="94" cy="348" r="3.5" fill="#B7C0CE" stroke="none"/><circle cx="82" cy="362" r="3.5" fill="#B7C0CE" stroke="none"/><circle cx="94" cy="362" r="3.5" fill="#B7C0CE" stroke="none"/><ellipse cx="73" cy="336" rx="6" ry="9" fill="#F6C9A8"/><ellipse cx="103" cy="330" rx="6" ry="6" fill="#F6C9A8"/><ellipse cx="103" cy="342" rx="6" ry="6" fill="#F6C9A8"/>
   
 <g transform="translate(0 144) rotate(-12)">
   
