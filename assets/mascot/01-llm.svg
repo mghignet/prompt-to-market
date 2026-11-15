@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="500" viewBox="0 0 400 500" role="img">
+<title>Le collègue IA — 1 · LLM seul</title>
+<desc>Une tête seule qui parle, une bulle à côté : le LLM est entraîné à répondre intelligemment, mais il ne sait faire que ça, sans corps pour agir ni mémoire.</desc>
+
+<g transform="translate(215 0)" stroke="#1F2544" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+  
+  
+<g transform="translate(0 144) rotate(0)">
+  
+  <circle cx="-78" cy="6" r="15" fill="#F6C9A8"/><circle cx="78" cy="6" r="15" fill="#F6C9A8"/>
+  <ellipse cx="0" cy="0" rx="80" ry="74" fill="#F6C9A8"/>
+  <path d="M-82 4C-90 -36 -76 -60 -54 -72L-62 -98L-32 -82L-28 -110L-6 -86L8 -114L22 -86L44 -106L46 -78L70 -90L62 -64C80 -50 88 -26 82 4C76 -16 62 -32 42 -38C22 -28 -6 -30 -26 -38C-48 -32 -70 -18 -82 4Z" fill="#3A2622"/>
+  <ellipse cx="-54" cy="36" rx="11" ry="7" fill="#F2A08E" opacity=".6" stroke="none"/><ellipse cx="54" cy="36" rx="11" ry="7" fill="#F2A08E" opacity=".6" stroke="none"/>
+  <path d="M-44 -24Q-30 -36 -16 -26M16 -24Q30 -36 44 -26" fill="none" stroke-width="6"/>
+  <ellipse cx="-30" cy="8" rx="15" ry="17" fill="#FFFFFF" stroke-width="4"/><circle cx="-27" cy="7" r="7" fill="#1F2544" stroke="none"/><circle cx="-29.5" cy="4.5" r="2.4" fill="#FFFFFF" stroke="none"/><ellipse cx="30" cy="8" rx="15" ry="17" fill="#FFFFFF" stroke-width="4"/><circle cx="33" cy="7" r="7" fill="#1F2544" stroke="none"/><circle cx="30.5" cy="4.5" r="2.4" fill="#FFFFFF" stroke="none"/>
+  <path d="M-3 18Q-10 28 2 30" fill="none" stroke-width="4"/>
+  <path d="M-12 42Q0 39 12 42Q10 59 0 59Q-10 59 -12 42Z" fill="#7A2E2E" stroke-width="4"/>
+  <circle cx="-30" cy="9" r="22" fill="#FFFFFF" fill-opacity=".18" stroke-width="5"/>
+  <circle cx="30" cy="9" r="22" fill="#FFFFFF" fill-opacity=".18" stroke-width="5"/>
+  <path d="M-8 6Q0 0 8 6M-52 6L-77 2M52 6L77 2" fill="none" stroke-width="5"/>
+  
+</g>
+  
+  
+  <path d="M94 40H164Q174 40 174 50V92Q174 102 164 102H118L98 120L102 102H94Q84 102 84 92V50Q84 40 94 40Z" fill="#FFFFFF"/>
+  <path d="M98 58H160M98 72H160M98 86H138" fill="none" stroke="#9AA3B5" stroke-width="5"/>
+  
+</g>
+</svg>
