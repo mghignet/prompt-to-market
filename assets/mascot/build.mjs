@@ -161,6 +161,14 @@ const runRemote = (x, y) => `
 
 const pressLines = () => `<path d="M-24 290L-32 284M44 290L52 284M-26 302H-36M46 302H56" fill="none" stroke-width="4"/>`;
 
+// The palm sits behind the case; thumb and fingers wrap its edges.
+const handHoldingRemote = ([x, y]) =>
+  hand([x, y]) +
+  runRemote(x - 26, y - 30) +
+  `<ellipse cx="${x - 26}" cy="${y - 10}" rx="6" ry="9" fill="${C.skin}"/>` +
+  `<ellipse cx="${x + 26}" cy="${y - 16}" rx="6" ry="6" fill="${C.skin}"/>` +
+  `<ellipse cx="${x + 26}" cy="${y - 4}" rx="6" ry="6" fill="${C.skin}"/>`;
+
 const pointingHand = ([x, y]) =>
   `<rect x="${x - 5}" y="${y}" width="10" height="26" rx="5" fill="${C.skin}"/>` +
   `<circle cx="${x}" cy="${y}" r="14" fill="${C.skin}"/>`;
@@ -179,7 +187,7 @@ const FRONT_ARMS = {
   },
   3: {
     left: { shoulder: LEFT_SHOULDER, control: [-116, 250], end: [-110, 182], hand: [-108, 174], overHead: true },
-    right: { shoulder: RIGHT_SHOULDER, control: [80, 300], end: [86, 330], hand: [88, 340] },
+    right: { shoulder: RIGHT_SHOULDER, control: [80, 300], end: [86, 336], holdsRemote: [88, 348] },
   },
   6: {
     left: { shoulder: LEFT_SHOULDER, control: [-108, 296], end: [-100, 244], thumbsUp: [-100, 236] },
@@ -191,10 +199,11 @@ const drawHand = (arm) => {
   if (arm.overHead) return "";
   if (arm.thumbsUp) return thumbsUp(arm.thumbsUp);
   if (arm.pointing) return pointingHand(arm.pointing);
+  if (arm.holdsRemote) return handHoldingRemote(arm.holdsRemote);
   return hand(arm.hand);
 };
 
-const FRONT_PROPS = { 2: () => runRemote(-16, 302) + pressLines(), 3: () => runRemote(92, 306), 6: closedBook };
+const FRONT_PROPS = { 2: () => runRemote(-16, 302) + pressLines(), 3: () => "", 6: closedBook };
 
 const frontBody = (level) => {
   const { shirt, pants } = outfit(level);
