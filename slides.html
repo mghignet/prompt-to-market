@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Travailler avec l'IA — le stagiaire amnésique</title>
+<title>L'IA, ton nouveau collègue</title>
 <style>
   /* Charte MGH Consulting : tokens de brand.css, police Sora, fond clair, un seul accent rouge par slide. */
   @font-face { font-family: "Sora"; src: url("assets/Sora-VariableFont_wght.ttf") format("truetype"); font-weight: 100 800; font-style: normal; }
@@ -129,6 +129,9 @@
   .seq div + div::before { content: "↓"; display: block; color: var(--mgh-text-muted); font-size: 24px; margin-bottom: 4px; }
 
   .big { font-size: 34px; line-height: 1.2; }
+  /* Une phrase seule au centre de la slide : l'orateur la porte, rien ne la distrait. */
+  .slide.statement { justify-content: center; gap: 40px; }
+  .statement .big { font-size: 46px; max-width: 1040px; }
   .sevens { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 22px; }
   .sevens li { display: grid; grid-template-columns: 44px 1fr; align-items: baseline; padding: 7px 0; border-bottom: 1.5px solid var(--mgh-line); }
 
@@ -200,30 +203,49 @@
   </div>
 
   <!-- Ouverture -->
-  <section class="slide title legacy" aria-label="Titre">
-    <p class="eyebrow">Retour d'expérience · bonnes pratiques SDLC</p>
-    <h1>Travailler avec l'IA :<br>un stagiaire <span class="good-text">brillant</span>,<br>mais <span class="warn-text">amnésique</span></h1>
-    <p class="lead">Ce qui marche, ce qui casse, et comment on l'encadre.</p>
+  <section class="slide title" aria-label="Titre">
+    <p class="eyebrow">Démarrer avec l'IA</p>
+    <h1>L'IA, ton nouveau <span class="good-text">collègue</span></h1>
+    <p class="lead">Tu t'en sers déjà. Pas encore à pleine puissance.</p>
     <p class="hint">→ pour avancer · ← pour reculer · F pour le plein écran · N pour les notes</p>
+  </section>
+
+  <!-- L'écart : la salle le constate elle-même, à main levée. -->
+  <section class="slide statement" aria-label="Qui a utilisé une IA ?">
+    <p class="big">Qui a utilisé une IA cette semaine ?</p>
+    <p class="big step">… pour autre chose que <span class="warn-text">poser une question</span> ?</p>
+    <aside class="notes">
+      <p>Tu as sans doute utilisé une IA cette semaine : ChatGPT, Claude, peu importe. Mais probablement pour poser une question et lire la réponse. C'est le cas de presque tout le monde.</p>
+      <p>Voilà l'écart. Tu as entre les mains un outil capable de mener un projet avec toi, et tu t'en sers comme d'un moteur de recherche qui parle bien.</p>
+    </aside>
+  </section>
+
+  <section class="slide statement" aria-label="La promesse">
+    <p class="big">À la fin, tu sauras <span class="good-text">lancer un projet</span> qui exploite vraiment l'IA, sur <span class="good-text">ton sujet de discovery</span>.</p>
+    <aside class="notes">
+      <p>À la fin de cette présentation, tu sauras lancer un projet qui exploite vraiment l'IA, sur l'un de tes propres sujets de discovery.</p>
+      <p>Pourquoi maintenant ? Côté dev, beaucoup ont déjà pris le virage. Côté produit, on en est encore souvent à la question-réponse.</p>
+      <p>Pas de cours technique ici : je te montre par où commencer, et ce que ça donne concrètement.</p>
+    </aside>
   </section>
 
   <!-- Le nouveau collègue -->
   <section class="slide with-mascot" aria-label="Ton nouveau collègue">
     <img class="mascot" src="assets/mascot/00-hello.svg" alt="Le collègue IA, sans équipement, nous fait coucou de la main.">
     <div class="stack">
-      <h2>L'IA, c'est ton nouveau collègue</h2>
+      <h2>Vois l'IA comme ton nouveau collègue</h2>
       <p class="lead">Il est brillant. <strong>On lui parle comme à un humain.</strong></p>
       <div class="card warn step">
         <h3>Pas comme à un système</h3>
-        <p class="say">bug login fix</p>
+        <p class="say">irritants gestion stocks entretiens</p>
       </div>
       <div class="card good step">
         <h3>Comme à un humain</h3>
-        <p class="say">Le login renvoie une erreur 500 quand l'email contient une majuscule. Trouve la cause, corrige-la et ajoute un test. Si un point n'est pas clair, demande-moi.</p>
+        <p class="say">Je prépare une discovery sur la gestion des stocks. Voici un document qui explique le contexte, et des verbatims d'entretiens. Regroupe-les par irritant, cite le verbatim qui appuie chaque groupe, et dis-moi ce qui manque pour conclure. Si un point n'est pas clair, demande-moi.</p>
       </div>
     </div>
     <aside class="notes">
-      <p>Quand tu t'adresses à l'IA, vois-la telle qu'elle est : pas un système informatique, un collègue. Tu lui parles comme à un humain.</p>
+      <p>Quand tu t'adresses à l'IA, vois-la comme un collègue plutôt que comme un système informatique : tu lui parles comme à un humain.</p>
       <p>Avec une suite de mots-clés, il devine. Avec le contexte, l'objectif et ce que tu attends, il fait le travail, et il te pose une question s'il bloque.</p>
     </aside>
   </section>
@@ -232,11 +254,12 @@
     <img class="mascot" src="assets/mascot/00-pensive.svg" alt="Le collègue IA, sans équipement, la main sous le menton, se demande par où commencer.">
     <div class="stack">
       <p class="big">Brillant, mais il arrive <span class="warn-text">les mains vides</span>.</p>
-      <p class="big">Il faut <span class="good-text">l'équiper</span>, puis <span class="good-text">l'onboarder</span>.</p>
+      <p class="big">Il faut <span class="good-text">l'équiper</span>, <span class="good-text">l'onboarder</span>, et connaître <span class="good-text">ses traits</span>.</p>
     </div>
     <aside class="notes">
       <p>Il est brillant, mais il arrive les mains vides et il ne connaît rien de nous.</p>
       <p>Il faut l'équiper, puis l'onboarder. L'équipement lui sert dans tous les projets de l'entreprise ; l'onboarding lui fait connaître ton projet.</p>
+      <p>Et comme tout collègue, il a ses traits de personnalité : chacun vient avec sa parade.</p>
     </aside>
   </section>
 
@@ -252,6 +275,7 @@
       <div class="card warn step problem"><span class="problem-label">Problème</span>Il parle, mais il n'agit pas. Et il ne connaît pas tes documents.</div>
     </div>
     <aside class="notes">
+      <p>Si tu utilises l'IA pour poser des questions, tu es ici : tu n'utilises que sa tête.</p>
       <p>L'usage le plus basique, c'est ChatGPT ou Gemini sur le web. Là, on n'utilise que sa tête : le LLM.</p>
       <p>Un modèle entraîné sur d'immenses quantités de texte. Il répond intelligemment, mais seul, il ne sait que parler : pas de mains pour agir, pas de mémoire. Le modèle, c'est ce que tu choisis dans le menu « modèle ».</p>
       <p>Il parle, mais il n'agit pas. Et il ne connaît que ce qu'il a appris : rien de tes documents.</p>
