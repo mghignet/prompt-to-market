@@ -38,7 +38,7 @@
   #tracker.hidden { visibility: hidden; }
 
   /* Inventaire, comme dans un jeu : une case par objet reçu. Complet, il s'entoure d'un halo et de paillettes. */
-  #inventory { position: absolute; left: 72px; top: 239px; }
+  #inventory { position: absolute; left: 72px; top: 210px; }
   #inventory.hidden { visibility: hidden; }
   #inventory .slots { display: flex; flex-direction: column; gap: 8px; list-style: none; padding: 0; }
   /* L'inventaire est une colonne à gauche de la mascotte : on lui laisse la place. */
@@ -144,6 +144,32 @@
   .mascot-swap > .problem-mascot { opacity: 0; }
   .slide:has(.problem.shown) .mascot-swap > .problem-mascot { opacity: 1; }
   .slide:has(.problem.shown) .mascot-swap > img:first-child { opacity: 0; }
+  /* Quand ses outils apparaissent, il tend la télécommande vers eux ; le problème reprend la main ensuite. */
+  .mascot-swap > .pilot-mascot { opacity: 0; }
+  .slide:has(.tools.shown) .mascot-swap > img:first-child { opacity: 0; }
+  .slide:has(.tools.shown) .mascot-swap > .pilot-mascot { opacity: 1; }
+  .slide:has(.problem.shown) .mascot-swap > .pilot-mascot { opacity: 0; }
+
+  /* Les outils prennent la place de la phrase et des exemples, puis le problème celle des outils : la slide reste légère et rien ne bouge autour. */
+  .harness-swap { display: grid; }
+  .harness-swap > * { grid-area: 1 / 1; align-self: start; }
+  .harness-intro { display: flex; flex-direction: column; gap: 16px; transition: opacity .25s ease; }
+  .slide:has(.tools.shown) .harness-intro { opacity: 0; }
+  .slide:has(.problem.shown) .tools.shown { opacity: 0; }
+
+  /* Ses outils : les logos arrivent un par un, comme captés par la télécommande. Logos : Simple Icons (CC0). */
+  .tool-groups { display: flex; gap: 24px; align-items: flex-end; margin-top: 32px; }
+  .tool-groups .chips-label { display: block; margin-bottom: 6px; }
+  .tool-icons { display: flex; gap: 10px; list-style: none; padding: 0; }
+  .tool-icons li, .browser { height: 56px; border: 1.5px solid var(--mgh-line); border-radius: 12px; background: #fff; }
+  .tool-icons li { width: 56px; display: grid; place-items: center; }
+  .tool-icons img { width: 30px; height: 30px; }
+  .browser { width: 150px; display: grid; grid-template-rows: 16px 1fr; overflow: hidden; }
+  .browser-bar { display: flex; gap: 4px; align-items: center; padding: 0 8px; background: var(--mgh-tint); border-bottom: 1.5px solid var(--mgh-line); }
+  .browser-bar i { width: 6px; height: 6px; border-radius: 50%; background: var(--mgh-line); }
+  .browser-page { display: grid; place-items: center; font-size: 18px; font-weight: 700; letter-spacing: -.02em; color: #ff6e14; }
+  .tools.shown :is(.tool-icons li, .browser) { animation: tool-in .45s ease-out calc(var(--i) * .1s) both; }
+  @keyframes tool-in { 0% { opacity: 0; transform: scale(.4); } 60% { opacity: 1; transform: scale(1.12); } 100% { transform: scale(1); } }
 
   /* Le problème se voit : étiquette rouge, et la slide se teinte de rouge autour de la mascotte. */
   .problem { font-size: 22px; }
@@ -199,7 +225,8 @@
     <span class="sparkle" style="--x:-16px;--y:208px;--d:.8s" aria-hidden="true">✦</span>
     <span class="sparkle" style="--x:54px;--y:256px;--d:1.3s" aria-hidden="true">✦</span>
     <span class="sparkle" style="--x:18px;--y:-20px;--d:.6s" aria-hidden="true">✦</span>
-    <span class="sparkle" style="--x:20px;--y:286px;--d:1.5s" aria-hidden="true">✦</span>
+    <span class="sparkle" style="--x:-16px;--y:300px;--d:1.5s" aria-hidden="true">✦</span>
+    <span class="sparkle" style="--x:20px;--y:344px;--d:.9s" aria-hidden="true">✦</span>
   </div>
 
   <!-- Ouverture -->
@@ -264,7 +291,7 @@
   </section>
 
   <!-- L'équiper : un niveau par slide ; la limite de chaque niveau amène le suivant. data-gear = nombre d'objets acquis. -->
-  <section class="slide with-mascot" data-section="1" data-gear="0" aria-label="Le LLM">
+  <section class="slide with-mascot" data-section="1" data-gear="1" aria-label="Le LLM">
     <div class="mascot-swap">
       <img class="mascot head-only" src="assets/mascot/01-llm.svg" alt="Une tête seule qui parle, avec une bulle.">
       <img class="mascot head-only problem-mascot" src="assets/mascot/01-llm-problem.svg" alt="La tête seule, l'air gêné, une goutte de sueur sur la tempe.">
@@ -282,7 +309,7 @@
     </aside>
   </section>
 
-  <section class="slide with-mascot" data-section="1" data-gear="0" aria-label="Le RAG">
+  <section class="slide with-mascot" data-section="1" data-gear="1" aria-label="Le RAG">
     <div class="mascot-swap">
       <img class="mascot head-only" src="assets/mascot/01-rag.svg" alt="Toujours une tête seule qui parle, avec une pile de documents à côté.">
       <img class="mascot head-only problem-mascot" src="assets/mascot/01-rag-problem.svg" alt="La tête seule à côté de ses documents, l'air gêné, une goutte de sueur sur la tempe.">
@@ -299,25 +326,51 @@
     </aside>
   </section>
 
-  <section class="slide with-mascot" data-section="1" data-gear="1" aria-label="Le harnais">
+  <section class="slide with-mascot" data-section="1" data-gear="2" aria-label="Le harnais">
     <div class="mascot-swap">
       <img class="mascot" src="assets/mascot/02-harness.svg" alt="Le collègue a un corps et appuie sur le bouton de sa télécommande.">
+      <img class="mascot pilot-mascot" src="assets/mascot/02-harness-pilot.svg" alt="Le collègue tend le bras et pointe sa télécommande vers ses outils, des ondes en sortent.">
       <img class="mascot problem-mascot" src="assets/mascot/02-harness-problem.svg" alt="Le collègue, bouche bée, une bulle de pensée vide au-dessus de la tête.">
     </div>
     <div class="stack">
       <h2>Ajoute un harnais à ton LLM : tu obtiens un agent</h2>
-      <p class="lead">Il lit, écrit, lance des commandes, regarde le résultat, et recommence.</p>
-      <span class="chips"><span class="chips-label">Exemples de harnais</span><span class="chip">Claude Code</span><span class="chip">Codex</span><span class="chip">GitHub Copilot</span></span>
-      <div class="card warn step problem"><span class="problem-label">Problème</span>À chaque session, il faut tout lui redire. Et le reste de l'équipe ne peut pas lui parler.</div>
+      <div class="harness-swap">
+        <div class="harness-intro">
+          <p class="lead">Il lit, écrit, lance des commandes, regarde le résultat, et recommence.</p>
+          <span class="chips"><span class="chips-label">Exemples de harnais</span><span class="chip">Claude Code</span><span class="chip">Codex</span><span class="chip">GitHub Copilot</span></span>
+        </div>
+        <div class="tools step">
+          <p class="lead">Il a accès à <strong>tout ce à quoi tu as accès</strong>. Si tu l'autorises.</p>
+          <div class="tool-groups">
+            <div>
+              <span class="chips-label">Tes outils</span>
+              <ul class="tool-icons">
+                <li style="--i:0"><img src="assets/logos/googledrive.svg" alt="Google Drive"></li>
+                <li style="--i:1"><img src="assets/logos/miro.svg" alt="Miro"></li>
+                <li style="--i:2"><img src="assets/logos/slack.svg" alt="Slack"></li>
+                <li style="--i:3"><img src="assets/logos/figma.svg" alt="Figma"></li>
+                <li style="--i:4"><img src="assets/logos/github.svg" alt="GitHub"></li>
+              </ul>
+            </div>
+            <div>
+              <span class="chips-label">Tout le web, via ton navigateur</span>
+              <div class="browser" style="--i:5"><span class="browser-bar"><i></i><i></i><i></i></span><span class="browser-page">leboncoin</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card warn step problem"><span class="problem-label">Problème</span>À chaque session, il faut tout lui redire. Et le reste de l'équipe ne peut pas lui parler.</div>
+      </div>
     </div>
     <aside class="notes">
       <p>Du coup, on lui permet d'agir : on lui donne un corps et une télécommande. C'est le harnais : ajoute un harnais à ton LLM, tu obtiens un agent. On est passé du LLM au RAG, puis à l'agent.</p>
       <p>Un programme qui relance le LLM en boucle : il lit et écrit des fichiers, lance des commandes, regarde le résultat, puis recommence. LLM + harnais = un agent. Un même harnais peut faire tourner plusieurs LLM.</p>
+      <p>Et surtout, il se branche sur les outils que tu utilises déjà, exactement comme toi : Google Drive, Miro, Slack, Figma, GitHub… On appelle ça des connecteurs. Pour tout le reste, il passe par ton navigateur : il peut chercher une annonce sur Leboncoin comme tu le ferais.</p>
+      <p>Retiens ça : l'agent peut avoir accès à tout ce à quoi tu as accès. Mais seulement si tu l'autorises : c'est toi qui choisis à quoi tu le branches, et ce qu'il a le droit d'y faire.</p>
       <p>Mais à chaque fois que je relance une session, je dois lui redire quoi faire. Et mon collègue, sur son propre ordinateur, aimerait parler à mon collègue IA, lui aussi.</p>
     </aside>
   </section>
 
-  <section class="slide with-mascot" data-section="1" data-gear="2" aria-label="La mémoire sauvegardée">
+  <section class="slide with-mascot" data-section="1" data-gear="3" aria-label="La mémoire sauvegardée">
     <div class="mascot-swap">
       <img class="mascot" src="assets/mascot/03-storage.svg" alt="Le collègue enfonce une disquette Git dans son crâne.">
       <img class="mascot problem-mascot" src="assets/mascot/03-storage-problem.svg" alt="La disquette enfoncée, le collègue a l'air embarrassé, une goutte de sueur sur la tempe.">
@@ -336,7 +389,7 @@
     </aside>
   </section>
 
-  <section class="slide with-mascot" data-section="1" data-gear="3" aria-label="Les skills">
+  <section class="slide with-mascot" data-section="1" data-gear="4" aria-label="Les skills">
     <div class="mascot-swap">
       <img class="mascot" src="assets/mascot/04-skills.svg" alt="Le collègue lit une fiche à cases cochées qu'il tient à deux mains.">
       <img class="mascot problem-mascot" src="assets/mascot/04-skills-overwhelmed.svg" alt="Le collègue se tient la tête à deux mains au milieu de recettes qui volent autour de lui.">
@@ -354,7 +407,7 @@
     </aside>
   </section>
 
-  <section class="slide with-mascot" data-section="1" data-gear="4" aria-label="Le framework de skills">
+  <section class="slide with-mascot" data-section="1" data-gear="5" aria-label="Le framework de skills">
     <div class="mascot-swap">
       <img class="mascot" src="assets/mascot/05-framework.svg" alt="Le collègue lit un gros manuel ouvert, la fiche glissée dedans comme marque-page.">
       <img class="mascot problem-mascot" src="assets/mascot/05-framework-problem.svg" alt="Le collègue lève les yeux de son manuel, perplexe, un point d'interrogation au-dessus de la tête.">
@@ -372,7 +425,7 @@
     </aside>
   </section>
 
-  <section class="slide with-mascot" data-section="1" data-gear="5" aria-label="Le SDLC d'entreprise">
+  <section class="slide with-mascot" data-section="1" data-gear="6" aria-label="Le SDLC d'entreprise">
     <img class="mascot" src="assets/mascot/06-sdlc.svg" alt="Le collègue en tenue de l'entreprise, casquette sur la tête, lève le pouce.">
     <div class="stack">
       <h2>Nos règles du jeu : le SDLC d'entreprise</h2>
@@ -384,7 +437,7 @@
     </aside>
   </section>
 
-  <section class="slide" data-section="1" data-gear="5" aria-label="L'équiper, couche par couche">
+  <section class="slide" data-section="1" data-gear="6" aria-label="L'équiper, couche par couche">
     <h2>L'équiper, couche par couche</h2>
     <ol class="gear">
       <li><img src="assets/mascot/01-llm.svg" alt="Une tête seule qui parle, avec une bulle."><span class="term">LLM</span><span class="gear-examples">ChatGPT · Gemini sur le web</span></li>
@@ -399,7 +452,7 @@
     </aside>
   </section>
 
-  <section class="slide with-mascot hero" data-section="1" data-gear="5" aria-label="Il faut l'onboarder">
+  <section class="slide with-mascot hero" data-section="1" data-gear="6" aria-label="Il faut l'onboarder">
     <img class="mascot" src="assets/mascot/06-sdlc.svg" alt="Le collègue en tenue de l'entreprise, casquette sur la tête, lève le pouce.">
     <div class="stack">
       <p class="big">Il connaît l'entreprise.</p>
@@ -701,6 +754,7 @@
 
 <script>
   const EQUIPMENT = [
+    { label: "Bulle de parole", icon: "bubble" },
     { label: "Télécommande", icon: "remote" },
     { label: "Disquette", icon: "floppy" },
     { label: "Recette", icon: "recipe" },
