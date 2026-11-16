@@ -1,4 +1,4 @@
-// Generates the hello, pensive, overwhelmed, RAG and pilot poses, the six mascot levels (cumulative equipment),
+// Generates the hello, pensive, overwhelmed, RAG, pilot and cook poses, the six mascot levels (cumulative equipment),
 // their problem variants, an overview sheet and the inventory icons.
 // Usage: node assets/mascot/build.mjs
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -105,6 +105,14 @@ const RAG = {
   desc: "Toujours une tête seule qui parle, mais une pile de documents à côté d'elle : il les lit avant de répondre.",
 };
 const RAG_LEVEL = 1.5;
+
+// Skills level, front-facing: guided by your recipe card, he flips crêpes the way you make them.
+const COOK = {
+  file: "04-skills-cook.svg",
+  label: "Skills, en cuisine",
+  desc: "Le collègue, la disquette dans le crâne, tient la fiche de recette d'une main et fait sauter une crêpe avec sa poêle de l'autre, ravi : guidé par ta recette, il cuisine comme toi.",
+};
+const COOK_LEVEL = 4.2;
 const isHeadOnly = (level) => level === 1 || level === RAG_LEVEL;
 
 // Same equipment, troubled face: the slides swap to these when they reveal the level's limit.
@@ -238,6 +246,19 @@ const sparkle = (x, y, s) =>
 
 // --- Props held in the hands -------------------------------------------------
 
+// The handle starts in his hand at (x, y); the crêpe flies above the pan.
+const panWithFlyingCrepe = (x, y) => `
+  <path d="M${x} ${y}L${x + 24} ${y - 8}" fill="none" stroke-width="10"/>
+  <path d="M${x + 20} ${y - 14}Q${x + 48} ${y + 10} ${x + 76} ${y - 14}Z" fill="${C.ink}"/>
+  <ellipse cx="${x + 48}" cy="${y - 14}" rx="28" ry="7" fill="${C.pants}" stroke-width="4"/>
+  <path d="M${x + 30} ${y - 26}Q${x + 22} ${y - 58} ${x + 36} ${y - 82}M${x + 64} ${y - 26}Q${x + 72} ${y - 58} ${x + 60} ${y - 82}" fill="none" stroke-width="4" stroke-dasharray="1 9"/>
+  <g transform="translate(${x + 48} ${y - 104}) rotate(-14)">
+    <ellipse rx="30" ry="9" fill="${C.gold}" stroke-width="4"/>
+    <circle cx="-12" cy="-1" r="2.5" fill="${C.hair}" stroke="none" opacity=".45"/>
+    <circle cx="6" cy="2" r="3" fill="${C.hair}" stroke="none" opacity=".45"/>
+    <circle cx="16" cy="-2" r="2" fill="${C.hair}" stroke="none" opacity=".45"/>
+  </g>`;
+
 const sheet = (x = 60, y = 300, angle = -12, scale = 1) => `
   <g transform="translate(${x} ${y}) rotate(${angle}) scale(${scale})">
     <rect x="-38" y="-48" width="76" height="96" rx="4" fill="${C.paper}" stroke-width="4.5"/>
@@ -360,6 +381,10 @@ const FRONT_ARMS = {
     left: { shoulder: LEFT_SHOULDER, control: [-84, 330], end: [-6, 342], hand: [2, 342] },
     right: { shoulder: RIGHT_SHOULDER, control: [92, 310], end: [16, 270], pointing: [4, 266] },
   },
+  [COOK_LEVEL]: {
+    left: { shoulder: LEFT_SHOULDER, control: [-104, 300], end: [-96, 318], hand: [-96, 322] },
+    right: { shoulder: RIGHT_SHOULDER, control: [100, 324], end: [98, 302], hand: [100, 298] },
+  },
   [PILOT_LEVEL]: {
     left: { shoulder: LEFT_SHOULDER, control: [-84, 300], end: [-90, 350], hand: [-92, 360] },
     right: { shoulder: RIGHT_SHOULDER, control: [96, 266], end: [104, 228], aimsRemote: [108, 222] },
@@ -384,7 +409,7 @@ const drawHand = (arm) => {
   return hand(arm.hand);
 };
 
-const FRONT_PROPS = { [HELLO_LEVEL]: () => "", [PENSIVE_LEVEL]: () => "", [OVERWHELMED_LEVEL]: () => "", [PILOT_LEVEL]: () => "", 2: () => tvRemote(-13, 284) + pressLines(), 3: () => "", 6: closedBook };
+const FRONT_PROPS = { [HELLO_LEVEL]: () => "", [PENSIVE_LEVEL]: () => "", [OVERWHELMED_LEVEL]: () => "", [PILOT_LEVEL]: () => "", [COOK_LEVEL]: () => sheet(-122, 300, -10, 0.7) + panWithFlyingCrepe(100, 298), 2: () => tvRemote(-13, 284) + pressLines(), 3: () => "", 6: closedBook };
 
 const frontBody = (level) => {
   const { shirt, pants } = outfit(level);
@@ -442,6 +467,7 @@ const FACE = {
   [OVERWHELMED_LEVEL]: { brows: "worried", eye: { pupil: 5.5, look: [0, 1] }, mouth: "wavy" },
   [PENSIVE_LEVEL]: { brows: "raised", eye: { pupil: 7, look: [-6, -7] }, mouth: "pensive", tilt: -6 },
   [PILOT_LEVEL]: { brows: "confident", eye: { pupil: 7, look: [7, -2] }, mouth: "smirk", tilt: 4 },
+  [COOK_LEVEL]: { brows: "happy", eye: { pupil: 7, look: [6, -6] }, mouth: "bigSmile", tilt: 6 },
   [HELLO_LEVEL]: { brows: "happy", eye: { pupil: 7, look: [0, 0] }, mouth: "bigSmile", tilt: 6 },
   1: { brows: "raised", eye: { pupil: 7, look: [3, -1] }, mouth: "talk" },
   2: { brows: "neutral", eye: { pupil: 7, look: [0, 7] }, mouth: "smile" },
@@ -660,6 +686,7 @@ writeCharacterSvg(PENSIVE, PENSIVE_LEVEL);
 writeCharacterSvg(OVERWHELMED, OVERWHELMED_LEVEL);
 writeCharacterSvg(RAG, RAG_LEVEL);
 writeCharacterSvg(PILOT, PILOT_LEVEL);
+writeCharacterSvg(COOK, COOK_LEVEL);
 PROBLEM_POSES.forEach((pose) => writeCharacterSvg(pose, pose.level, pose));
 LEVELS.forEach((level, i) => writeCharacterSvg(level, i + 1));
 

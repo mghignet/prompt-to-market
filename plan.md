@@ -25,24 +25,25 @@ Double usage : l'orateur commente devant la salle et vouvoie ; la présentation 
 - Titre : « L'IA, ton nouveau collègue. Tu t'en sers déjà. Pas encore à pleine puissance. »
 - Mains levées : qui a utilisé une IA cette semaine ? Pour autre chose que poser une question ? La salle constate l'écart elle-même.
 - La promesse, seule sur sa slide, puis pourquoi maintenant : les devs ont pris le virage, le produit en est encore à la question-réponse.
-- Le collègue dit bonjour : il est brillant, on lui parle comme à un humain (exemple avant/après d'une demande).
-- Le collègue pensif : il arrive les mains vides, il faut l'équiper, l'onboarder et connaître ses traits.
+- Le collègue dit bonjour : un nouveau collaborateur qui rejoint ton équipe (il servira l'entreprise une fois équipé), il est brillant, on lui parle comme à un humain (exemple avant/après d'une demande).
+- Le collègue pensif : il arrive les mains vides, il faut l'équiper, l'onboarder et connaître ses traits de personnalité pour en tirer le meilleur.
 - Passerelle vers le LLM : ceux qui ne font que poser des questions n'utilisent que sa tête.
 
 ## 1. L'équiper
 
 Message : l'équipement est générique, il sert dans tous les projets de l'entreprise. À la fin, il connaît l'entreprise, pas encore ton projet.
 
-Une slide par niveau : la solution, puis au clic le nouveau problème, que résout la slide suivante. Le problème porte une étiquette « Problème » ; quand il apparaît, la slide se teinte de rouge autour de la mascotte, qui prend un air embêté (goutte de sueur, bulle vide, point d'interrogation, recettes qui volent). Les titres disent ce que le niveau apporte, pas l'objet dessiné. Les exemples sont annoncés (« Exemples de harnais »). À gauche de la mascotte, un inventaire vertical façon jeu vidéo : une case par objet (bulle de parole, télécommande, disquette, recette, manuel, casquette), qui se remplit slide après slide. Complet, un halo et des paillettes l'entourent. Le détail est dans les notes.
+Une slide par niveau : la solution, puis au clic ce qu'elle permet de faire en plus (étiquette jaune « Tu peux »). Le problème suit sur sa propre slide, sans titre : la mascotte embêtée en grand au centre (goutte de sueur, bulle vide, point d'interrogation, recettes qui volent), l'étiquette « Problème » et la phrase en dessous, la slide teintée de rouge. La slide suivante le résout. Les titres disent ce que le niveau apporte, pas l'objet dessiné. Les exemples sont annoncés (« Exemples de harnais »). À gauche de la mascotte, un inventaire vertical façon jeu vidéo : une case par objet (bulle de parole, télécommande, disquette, guide, casquette), qui se remplit slide après slide. Complet, un halo et des paillettes l'entourent. Le détail est dans les notes.
 
-- LLM = l'usage le plus basique, ChatGPT ou Gemini sur le web : ce n'est que la tête. Limite : il parle mais n'agit pas, et ne connaît pas tes documents.
-- RAG = petite évolution, il lit tes documents avant de répondre (Gemini Notebook). Limite : ça reste une tête, il n'agit toujours pas.
-- Harnais = un corps et une télécommande. Titre : « Ajoute un harnais à ton LLM : tu obtiens un agent » : Claude Code, Codex, GitHub Copilot. Au clic, tes outils remplacent la phrase et les exemples, et il pointe sa télécommande vers eux (Drive, Miro, Slack, Figma, GitHub, et tout le web via ton navigateur) : il a accès à tout ce à quoi tu as accès, si tu l'autorises. Au clic suivant, le problème remplace les outils. Limite : à chaque session il faut tout lui redire, et un autre collègue ne peut pas lui parler.
-- Mémoire sauvegardée (disquette) = le contenant, un endroit où relire ce qu'on lui écrit : en local si on travaille seul, ou mieux, un dépôt (GitHub). Ce qu'on y écrit sur le projet relève de l'onboarding. Limite : sur une demande précise, il reste générique.
-- Skills (recette) = procédure écrite pour une tâche précise : commit, relecture de PR, ADR. Limite : trop de recettes à gérer, il ne sait plus où donner de la tête (la mascotte débordée remplace la mascotte au clic).
-- Framework de skills (manuel) = les recettes rangées en une méthode : BMAD, Spec Kit, GSD. Limite : il ne connaît rien de notre boîte.
-- SDLC d'entreprise (casquette) = surcharge le framework. Pas d'exemple nommé : la présentation ne se fait pas qu'à un seul client.
-- Récap : les six niveaux côte à côte.
+- LLM = « À la base, il n'a qu'une tête » : il ne sait que réfléchir, même pas mémoriser. L'usage le plus basique, ChatGPT ou Gemini sur le web. Tu peux : poser des questions, reformuler, trouver des idées. Pas de problème : on enchaîne sur le RAG.
+- RAG = petite évolution, il lit tes documents avant de répondre (Gemini Notebook). Tu peux : interroger tes documents. Problème : ça reste une tête, il n'agit toujours pas.
+- Harnais = un corps et une télécommande. Titre : « Ajoute-lui un corps : tu obtiens un agent » ; ce corps, c'est le harnais : Claude Code, Codex, GitHub Copilot. Au clic, tes outils remplacent la phrase et les exemples, et il pointe sa télécommande vers eux (Drive, Miro, Slack, Figma, GitHub, et tout le web via ton navigateur) : tu peux le faire agir dans tout ce à quoi tu as accès, si tu l'autorises. Problème : à chaque session il faut tout lui redire, et un autre collègue ne peut pas lui parler.
+- Mémoire (disquette) = « Complète sa tête avec une mémoire » : il sait maintenant réfléchir et retenir. On enregistre des fichiers qu'il saura relire : sur ton ordinateur pour travailler seul, ou mieux, sur un dépôt GitHub, plus sûr et partagé avec l'équipe. Ce qu'on y écrit sur le projet relève de l'onboarding. Tu peux : faire du vibe coding. Problème : il improvise, même demande, résultat différent ; exemple : « Fais le compte rendu de la réunion » donne lundi la décision et les actions (qui, pour quand), jeudi un paragraphe creux, sans décision ni action.
+- Guide (manuel), en deux slides comme LLM et RAG :
+  - Skills = procédure écrite pour une tâche précise : synthétiser des entretiens, rédiger une user story, écrire un compte rendu. Tu peux : obtenir le même travail, bien fait, à chaque fois ; dans le même bloc, sans contour, l'analogie de la cuisine illustrée par la mascotte qui fait sauter une crêpe, ta recette à la main (sans recette : la première poêle venue et de l'huile ; avec la tienne : tes crêpes, au beurre salé). Problème : trop de recettes à gérer, il ne sait plus où donner de la tête (la mascotte débordée).
+  - Framework de skills = petite évolution, les recettes rangées en une méthode : BMAD, Spec Kit, GSD. Tu peux : dérouler toute une démarche, de l'idée à la livraison. Problème : il ne connaît rien de notre boîte.
+- SDLC d'entreprise (casquette) = « Rends-le corporate avec la surcouche de ton entreprise » : surcharge le framework. Tu peux : livrer un travail que l'équipe reconnaît comme le sien. Pas d'exemple nommé : la présentation ne se fait pas qu'à un seul client.
+- Récap : les cinq niveaux côte à côte, chacun avec ce qu'il permet de faire (poser des questions, agir dans tes outils, vibe coder, travailler avec méthode, livrer comme l'équipe).
 - Transition : il connaît l'entreprise, pas encore ton projet, il faut l'onboarder.
 
 ### La mécanique (ancien temps 1)
