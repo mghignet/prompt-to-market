@@ -138,24 +138,18 @@
   /* Slide avec la mascotte à gauche et le texte à droite ; « hero » : la mascotte occupe toute la hauteur. */
   .slide.with-mascot.active { display: grid; grid-template-columns: 384px 1fr; gap: 56px; align-items: center; }
   .mascot { width: 384px; height: 480px; }
-  /* Quand le problème apparaît, la mascotte « problème » remplace la mascotte « solution ». */
+  /* Quand ses outils apparaissent, il tend la télécommande vers eux. */
   .mascot-swap { display: grid; }
   .mascot-swap > img { grid-area: 1 / 1; transition: opacity .25s ease; }
-  .mascot-swap > .problem-mascot { opacity: 0; }
-  .slide:has(.problem.shown) .mascot-swap > .problem-mascot { opacity: 1; }
-  .slide:has(.problem.shown) .mascot-swap > img:first-child { opacity: 0; }
-  /* Quand ses outils apparaissent, il tend la télécommande vers eux ; le problème reprend la main ensuite. */
   .mascot-swap > .pilot-mascot { opacity: 0; }
   .slide:has(.tools.shown) .mascot-swap > img:first-child { opacity: 0; }
   .slide:has(.tools.shown) .mascot-swap > .pilot-mascot { opacity: 1; }
-  .slide:has(.problem.shown) .mascot-swap > .pilot-mascot { opacity: 0; }
 
-  /* Les outils prennent la place de la phrase et des exemples, puis le problème celle des outils : la slide reste légère et rien ne bouge autour. */
-  .harness-swap { display: grid; }
-  .harness-swap > * { grid-area: 1 / 1; align-self: start; }
-  .harness-intro { display: flex; flex-direction: column; gap: 16px; transition: opacity .25s ease; }
-  .slide:has(.tools.shown) .harness-intro { opacity: 0; }
-  .slide:has(.problem.shown) .tools.shown { opacity: 0; }
+  /* Les outils prennent la place de la phrase et des exemples : la slide reste légère et rien ne bouge autour. */
+  .swap { display: grid; }
+  .swap > * { grid-area: 1 / 1; align-self: start; }
+  .swap-intro { display: flex; flex-direction: column; gap: 16px; transition: opacity .25s ease; }
+  .slide:has(.tools.shown) .swap-intro { opacity: 0; }
 
   /* Ses outils : les logos arrivent un par un, comme captés par la télécommande. Logos : Simple Icons (CC0). */
   .tool-groups { display: flex; gap: 24px; align-items: flex-end; margin-top: 32px; }
@@ -171,11 +165,26 @@
   .tools.shown :is(.tool-icons li, .browser) { animation: tool-in .45s ease-out calc(var(--i) * .1s) both; }
   @keyframes tool-in { 0% { opacity: 0; transform: scale(.4); } 60% { opacity: 1; transform: scale(1.12); } 100% { transform: scale(1); } }
 
-  /* Le problème se voit : étiquette rouge, et la slide se teinte de rouge autour de la mascotte. */
-  .problem { font-size: 22px; }
-  .problem-label { display: block; width: fit-content; margin-bottom: 8px; padding: 2px 12px; border-radius: 999px; background: var(--mgh-red); color: #fff; font-size: 14px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
-  .slide:has(.problem)::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0; transition: opacity .4s ease; background: radial-gradient(circle at 28% 55%, rgba(255, 45, 45, .16), rgba(255, 45, 45, .05) 45%, transparent 75%); }
-  .slide:has(.problem.shown)::after { opacity: 1; }
+  /* Chaque problème a sa slide, sans titre : la mascotte embêtée en grand au centre, le problème en dessous, la slide teintée de rouge. */
+  .slide.problem-slide { justify-content: center; align-items: center; text-align: center; gap: 12px; }
+  .problem-slide .mascot { width: 280px; height: 350px; }
+  .problem-slide .mascot.head-only { width: 300px; height: 195px; }
+  .problem-slide .mascot.small { width: 176px; height: 220px; }
+  .problem-statement { font-size: 40px; font-weight: 700; line-height: 1.2; letter-spacing: -.02em; max-width: 1000px; }
+  .problem-label { display: block; width: fit-content; padding: 2px 12px; border-radius: 999px; background: var(--mgh-red); color: #fff; font-size: 14px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+  .problem-slide::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(circle at 55% 45%, rgba(255, 45, 45, .16), rgba(255, 45, 45, .05) 45%, transparent 75%); }
+  /* Deux réponses à la même demande, qui ne se ressemblent pas. */
+  .outputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 760px; margin-top: 6px; text-align: left; }
+  .output { background: var(--mgh-tint); border-radius: 12px; padding: 12px 16px; font-size: 15px; line-height: 1.45; }
+  .output h4 { font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--mgh-text-muted); margin-bottom: 6px; }
+  .output p + p { margin-top: 6px; }
+  /* Ce que le niveau débloque : étiquette jaune, en miroir de l'étiquette « Problème ». */
+  .unlock { font-size: 22px; }
+  /* Variante illustrée : sans fond ni contour, la mascotte à droite du texte. */
+  .unlock.scene { background: none; border: none; display: grid; grid-template-columns: 1fr 190px; gap: 16px; align-items: center; padding-top: 0; padding-bottom: 0; }
+  .scene-analogy { margin-top: 8px; font-size: 18px; line-height: 1.45; color: var(--mgh-text-muted); }
+  .scene img { width: 190px; height: 238px; }
+  .unlock-label { display: block; width: fit-content; margin-bottom: 8px; padding: 2px 12px; border-radius: 999px; background: var(--mgh-yellow); color: var(--mgh-ink); font-size: 14px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
   /* Le LLM n'est qu'une tête : on garde le haut de l'image pour ne pas laisser un grand vide. */
   .mascot.head-only { height: 250px; object-fit: cover; object-position: top; }
   .slide.hero.active { grid-template-columns: 448px 1fr; }
@@ -184,14 +193,14 @@
   .hero .stack { gap: 24px; }
   .say { font-family: var(--mono); font-size: 17px; line-height: 1.5; margin-top: 6px; }
 
-  /* Les six niveaux de la mascotte, côte à côte. */
-  .gear { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(6, 1fr); grid-template-rows: auto auto auto; column-gap: 12px; margin-top: 8px; }
+  /* Les cinq niveaux de la mascotte, côte à côte, avec ce que chacun permet de faire. */
+  .gear { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: auto auto auto; column-gap: 12px; margin-top: 8px; }
   /* Subgrid : les libellés et les exemples restent alignés d'une colonne à l'autre. */
   .gear li { grid-row: span 3; display: grid; grid-template-rows: subgrid; row-gap: 6px; justify-items: center; text-align: center; }
   /* Les SVG ont des marges blanches : l'image déborde sur les colonnes voisines sans toucher leur dessin. */
   .gear img { width: 125%; aspect-ratio: 4 / 5; }
   .gear .term { font-size: 20px; font-weight: 700; line-height: 1.2; }
-  .gear-examples { font-size: 15px; line-height: 1.4; color: var(--mgh-text-muted); }
+  .gear-unlock { font-size: 16px; line-height: 1.4; color: var(--mgh-text-muted); }
 
   /* Notes de l'orateur : cachées par défaut, la touche N les affiche à droite de la slide. */
   .slide aside.notes { display: none; }
@@ -225,8 +234,7 @@
     <span class="sparkle" style="--x:-16px;--y:208px;--d:.8s" aria-hidden="true">✦</span>
     <span class="sparkle" style="--x:54px;--y:256px;--d:1.3s" aria-hidden="true">✦</span>
     <span class="sparkle" style="--x:18px;--y:-20px;--d:.6s" aria-hidden="true">✦</span>
-    <span class="sparkle" style="--x:-16px;--y:300px;--d:1.5s" aria-hidden="true">✦</span>
-    <span class="sparkle" style="--x:20px;--y:344px;--d:.9s" aria-hidden="true">✦</span>
+    <span class="sparkle" style="--x:20px;--y:286px;--d:.9s" aria-hidden="true">✦</span>
   </div>
 
   <!-- Ouverture -->
@@ -261,7 +269,7 @@
     <img class="mascot" src="assets/mascot/00-hello.svg" alt="Le collègue IA, sans équipement, nous fait coucou de la main.">
     <div class="stack">
       <h2>Vois l'IA comme ton nouveau collègue</h2>
-      <p class="lead">Il est brillant. <strong>On lui parle comme à un humain.</strong></p>
+      <p class="lead">Il vient de rejoindre ton équipe. Il est brillant. <strong>On lui parle comme à un humain.</strong></p>
       <div class="card warn step">
         <h3>Pas comme à un système</h3>
         <p class="say">irritants gestion stocks entretiens</p>
@@ -272,7 +280,8 @@
       </div>
     </div>
     <aside class="notes">
-      <p>Quand tu t'adresses à l'IA, vois-la comme un collègue plutôt que comme un système informatique : tu lui parles comme à un humain.</p>
+      <p>Vois l'IA comme un nouveau collaborateur qui vient de rejoindre ton équipe. Comme tout nouvel arrivant, il lui faudra un peu de temps avant de servir pleinement l'entreprise.</p>
+      <p>Quand tu t'adresses à lui, parle-lui comme à un collègue plutôt que comme à un système informatique : comme à un humain.</p>
       <p>Avec une suite de mots-clés, il devine. Avec le contexte, l'objectif et ce que tu attends, il fait le travail, et il te pose une question s'il bloque.</p>
     </aside>
   </section>
@@ -281,47 +290,50 @@
     <img class="mascot" src="assets/mascot/00-pensive.svg" alt="Le collègue IA, sans équipement, la main sous le menton, se demande par où commencer.">
     <div class="stack">
       <p class="big">Brillant, mais il arrive <span class="warn-text">les mains vides</span>.</p>
-      <p class="big">Il faut <span class="good-text">l'équiper</span>, <span class="good-text">l'onboarder</span>, et connaître <span class="good-text">ses traits</span>.</p>
+      <p class="big">Il faut <span class="good-text">l'équiper</span>, <span class="good-text">l'onboarder</span>, et connaître <span class="good-text">ses traits de personnalité</span> pour en tirer le meilleur.</p>
     </div>
     <aside class="notes">
       <p>Il est brillant, mais il arrive les mains vides et il ne connaît rien de nous.</p>
       <p>Il faut l'équiper, puis l'onboarder. L'équipement lui sert dans tous les projets de l'entreprise ; l'onboarding lui fait connaître ton projet.</p>
-      <p>Et comme tout collègue, il a ses traits de personnalité : chacun vient avec sa parade.</p>
+      <p>Et comme tout collègue, il a ses traits de personnalité. Pour en tirer le meilleur, il faut les connaître : chacun vient avec sa parade.</p>
     </aside>
   </section>
 
-  <!-- L'équiper : un niveau par slide ; la limite de chaque niveau amène le suivant. data-gear = nombre d'objets acquis. -->
+  <!-- L'équiper : un niveau par slide, puis son problème sur une slide à part, qui amène le niveau suivant. data-gear = nombre d'objets acquis. -->
   <section class="slide with-mascot" data-section="1" data-gear="1" aria-label="Le LLM">
-    <div class="mascot-swap">
-      <img class="mascot head-only" src="assets/mascot/01-llm.svg" alt="Une tête seule qui parle, avec une bulle.">
-      <img class="mascot head-only problem-mascot" src="assets/mascot/01-llm-problem.svg" alt="La tête seule, l'air gêné, une goutte de sueur sur la tempe.">
-    </div>
+    <img class="mascot head-only" src="assets/mascot/01-llm.svg" alt="Une tête seule qui parle, avec une bulle.">
     <div class="stack">
-      <h2>L'usage le plus basique : le LLM</h2>
-      <p class="lead">ChatGPT ou Gemini sur le web. Ce n'est que <strong>la tête</strong> du collègue.</p>
-      <div class="card warn step problem"><span class="problem-label">Problème</span>Il parle, mais il n'agit pas. Et il ne connaît pas tes documents.</div>
+      <h2>À la base, il n'a qu'une tête</h2>
+      <p class="lead">Il ne sait que réfléchir, même pas mémoriser. C'est <strong>le LLM</strong> : l'usage le plus basique, ChatGPT ou Gemini sur le web.</p>
+      <div class="card good step unlock"><span class="unlock-label">Tu peux</span>Poser des questions, reformuler un texte, trouver des idées.</div>
     </div>
     <aside class="notes">
-      <p>Si tu utilises l'IA pour poser des questions, tu es ici : tu n'utilises que sa tête.</p>
-      <p>L'usage le plus basique, c'est ChatGPT ou Gemini sur le web. Là, on n'utilise que sa tête : le LLM.</p>
+      <p>Si tu utilises l'IA pour poser des questions, tu es ici : à la base, il n'a qu'une tête.</p>
+      <p>Il ne sait que réfléchir : il ne retient même pas ce que tu lui as dit la veille. C'est le LLM, l'usage le plus basique : ChatGPT ou Gemini sur le web.</p>
       <p>Un modèle entraîné sur d'immenses quantités de texte. Il répond intelligemment, mais seul, il ne sait que parler : pas de mains pour agir, pas de mémoire. Le modèle, c'est ce que tu choisis dans le menu « modèle ».</p>
-      <p>Il parle, mais il n'agit pas. Et il ne connaît que ce qu'il a appris : rien de tes documents.</p>
+      <p>Avec lui, tu peux déjà poser des questions, reformuler un texte, trouver des idées. C'est l'usage de presque tout le monde.</p>
     </aside>
   </section>
 
   <section class="slide with-mascot" data-section="1" data-gear="1" aria-label="Le RAG">
-    <div class="mascot-swap">
-      <img class="mascot head-only" src="assets/mascot/01-rag.svg" alt="Toujours une tête seule qui parle, avec une pile de documents à côté.">
-      <img class="mascot head-only problem-mascot" src="assets/mascot/01-rag-problem.svg" alt="La tête seule à côté de ses documents, l'air gêné, une goutte de sueur sur la tempe.">
-    </div>
+    <img class="mascot head-only" src="assets/mascot/01-rag.svg" alt="Toujours une tête seule qui parle, avec une pile de documents à côté.">
     <div class="stack">
       <h2>Une petite évolution : le RAG</h2>
       <p class="lead">Il lit tes documents avant de répondre.</p>
       <span class="chips"><span class="chips-label">Exemple de RAG</span><span class="chip">Gemini Notebook</span></span>
-      <div class="card warn step problem"><span class="problem-label">Problème</span>Ça reste une tête : il n'agit toujours pas.</div>
+      <div class="card good step unlock"><span class="unlock-label">Tu peux</span>Interroger tes documents : synthétiser tes entretiens, retrouver une décision.</div>
     </div>
     <aside class="notes">
       <p>Une petite évolution : le RAG, comme Gemini Notebook. On lui donne tes documents ; il y cherche les passages utiles avant de répondre.</p>
+      <p>En plus, tu peux interroger tes propres documents : synthétiser tes entretiens, retrouver une décision dans tes comptes rendus.</p>
+    </aside>
+  </section>
+
+  <section class="slide problem-slide" data-section="1" data-gear="1" aria-label="Problème : il n'agit pas">
+    <img class="mascot head-only" src="assets/mascot/01-rag-problem.svg" alt="La tête seule à côté de ses documents, l'air gêné, une goutte de sueur sur la tempe.">
+    <span class="problem-label">Problème</span>
+    <p class="problem-statement">Ça reste une tête : il n'agit toujours pas.</p>
+    <aside class="notes">
       <p>Mais ça reste une tête, pas un corps : on peut lui parler, pas le faire agir.</p>
     </aside>
   </section>
@@ -330,17 +342,17 @@
     <div class="mascot-swap">
       <img class="mascot" src="assets/mascot/02-harness.svg" alt="Le collègue a un corps et appuie sur le bouton de sa télécommande.">
       <img class="mascot pilot-mascot" src="assets/mascot/02-harness-pilot.svg" alt="Le collègue tend le bras et pointe sa télécommande vers ses outils, des ondes en sortent.">
-      <img class="mascot problem-mascot" src="assets/mascot/02-harness-problem.svg" alt="Le collègue, bouche bée, une bulle de pensée vide au-dessus de la tête.">
     </div>
     <div class="stack">
-      <h2>Ajoute un harnais à ton LLM : tu obtiens un agent</h2>
-      <div class="harness-swap">
-        <div class="harness-intro">
-          <p class="lead">Il lit, écrit, lance des commandes, regarde le résultat, et recommence.</p>
+      <h2>Ajoute-lui un corps : tu obtiens un agent</h2>
+      <div class="swap">
+        <div class="swap-intro">
+          <p class="lead">Ce corps, c'est <strong>le harnais</strong> : il lit, écrit, lance des commandes, regarde le résultat, et recommence.</p>
           <span class="chips"><span class="chips-label">Exemples de harnais</span><span class="chip">Claude Code</span><span class="chip">Codex</span><span class="chip">GitHub Copilot</span></span>
         </div>
         <div class="tools step">
-          <p class="lead">Il a accès à <strong>tout ce à quoi tu as accès</strong>. Si tu l'autorises.</p>
+          <span class="unlock-label">Tu peux</span>
+          <p class="lead">Le faire agir dans <strong>tout ce à quoi tu as accès</strong>. Si tu l'autorises.</p>
           <div class="tool-groups">
             <div>
               <span class="chips-label">Tes outils</span>
@@ -358,101 +370,151 @@
             </div>
           </div>
         </div>
-        <div class="card warn step problem"><span class="problem-label">Problème</span>À chaque session, il faut tout lui redire. Et le reste de l'équipe ne peut pas lui parler.</div>
       </div>
     </div>
     <aside class="notes">
-      <p>Du coup, on lui permet d'agir : on lui donne un corps et une télécommande. C'est le harnais : ajoute un harnais à ton LLM, tu obtiens un agent. On est passé du LLM au RAG, puis à l'agent.</p>
-      <p>Un programme qui relance le LLM en boucle : il lit et écrit des fichiers, lance des commandes, regarde le résultat, puis recommence. LLM + harnais = un agent. Un même harnais peut faire tourner plusieurs LLM.</p>
+      <p>Du coup, on lui permet d'agir : on lui donne un corps et une télécommande. Ajoute-lui un corps, tu obtiens un agent. On est passé du LLM au RAG, puis à l'agent.</p>
+      <p>Ce corps, c'est le harnais : un programme qui relance le LLM en boucle. Il lit et écrit des fichiers, lance des commandes, regarde le résultat, puis recommence. LLM + harnais = un agent. Un même harnais peut faire tourner plusieurs LLM.</p>
       <p>Et surtout, il se branche sur les outils que tu utilises déjà, exactement comme toi : Google Drive, Miro, Slack, Figma, GitHub… On appelle ça des connecteurs. Pour tout le reste, il passe par ton navigateur : il peut chercher une annonce sur Leboncoin comme tu le ferais.</p>
-      <p>Retiens ça : l'agent peut avoir accès à tout ce à quoi tu as accès. Mais seulement si tu l'autorises : c'est toi qui choisis à quoi tu le branches, et ce qu'il a le droit d'y faire.</p>
+      <p>Retiens ça : tu peux le faire agir dans tout ce à quoi tu as accès. Mais seulement si tu l'autorises : c'est toi qui choisis à quoi tu le branches, et ce qu'il a le droit d'y faire.</p>
+    </aside>
+  </section>
+
+  <section class="slide problem-slide" data-section="1" data-gear="2" aria-label="Problème : il oublie tout">
+    <img class="mascot" src="assets/mascot/02-harness-problem.svg" alt="Le collègue, bouche bée, une bulle de pensée vide au-dessus de la tête.">
+    <span class="problem-label">Problème</span>
+    <p class="problem-statement">À chaque session, il faut tout lui redire. Et le reste de l'équipe ne peut pas lui parler.</p>
+    <aside class="notes">
       <p>Mais à chaque fois que je relance une session, je dois lui redire quoi faire. Et mon collègue, sur son propre ordinateur, aimerait parler à mon collègue IA, lui aussi.</p>
     </aside>
   </section>
 
-  <section class="slide with-mascot" data-section="1" data-gear="3" aria-label="La mémoire sauvegardée">
-    <div class="mascot-swap">
-      <img class="mascot" src="assets/mascot/03-storage.svg" alt="Le collègue enfonce une disquette Git dans son crâne.">
-      <img class="mascot problem-mascot" src="assets/mascot/03-storage-problem.svg" alt="La disquette enfoncée, le collègue a l'air embarrassé, une goutte de sueur sur la tempe.">
-    </div>
+  <section class="slide with-mascot" data-section="1" data-gear="3" aria-label="La mémoire">
+    <img class="mascot" src="assets/mascot/03-storage.svg" alt="Le collègue enfonce une disquette Git dans son crâne.">
     <div class="stack">
-      <h2>Il se souvient : la mémoire sauvegardée</h2>
-      <div class="card"><h3>Bien</h3>En local, si tu travailles seul.</div>
-      <div class="card good"><h3>Mieux</h3>Un dépôt de code comme GitHub, partagé avec l'équipe.</div>
-      <div class="card warn step problem"><span class="problem-label">Problème</span>Sur une demande précise, il reste générique.</div>
+      <h2>Complète sa tête avec une mémoire</h2>
+      <p class="lead">Il sait maintenant réfléchir <strong>et retenir</strong> : on enregistre des fichiers, qu'il saura relire.</p>
+      <div class="grid cols-2">
+        <div class="card"><strong>Bien</strong> : sur ton ordinateur, pour travailler seul.</div>
+        <div class="card good"><strong>Mieux</strong> : sur GitHub, plus sûr et partagé avec l'équipe.</div>
+      </div>
+      <div class="card good step unlock"><span class="unlock-label">Tu peux</span>Faire du vibe coding : tu décris, il construit, session après session.</div>
     </div>
     <aside class="notes">
-      <p>On ajoute le stockage. Il ne se souvient de rien d'une session à l'autre : ce qu'il doit savoir est écrit quelque part, et il le relit en arrivant.</p>
-      <p>Bien : des fichiers en local, si tu veux travailler seul. Mieux : un dépôt de code, sur GitHub par exemple, versionné, partagé avec l'équipe et relu en PR.</p>
+      <p>Complétons sa tête avec une mémoire. Il sait maintenant réfléchir et retenir.</p>
+      <p>Comment ? On enregistre des fichiers, qu'il saura relire à chaque session. Sur ton propre ordinateur, si tu veux travailler seul. Ou mieux, sur un dépôt de code comme GitHub : c'est plus sûr, versionné, et tu le partages avec ton équipe.</p>
       <p>Ici, on lui donne le support ; ce qu'on y écrit sur ton projet, c'est l'onboarding.</p>
-      <p>Malgré tout, quand je lui demande quelque chose de spécifique, il semble un peu perdu, ou me sort des choses génériques.</p>
+      <p>Tu peux maintenant faire du vibe coding : tu décris ce que tu veux, il construit, et il reprend là où il s'était arrêté.</p>
+    </aside>
+  </section>
+
+  <section class="slide problem-slide" data-section="1" data-gear="3" aria-label="Problème : il improvise">
+    <img class="mascot small" src="assets/mascot/03-storage-problem.svg" alt="La disquette enfoncée, le collègue a l'air embarrassé, une goutte de sueur sur la tempe.">
+    <span class="problem-label">Problème</span>
+    <p class="problem-statement">Il improvise : même demande, résultat différent.</p>
+    <p class="say">Fais le compte rendu de la réunion.</p>
+    <div class="outputs">
+      <div class="output">
+        <h4>Lundi</h4>
+        <p><strong>Décision</strong> : lancement repoussé au 12 mars.</p>
+        <p><strong>Actions</strong> : Julie, les maquettes pour vendredi. Karim, le chiffrage pour mardi.</p>
+      </div>
+      <div class="output">
+        <h4>Jeudi</h4>
+        <p>La réunion a permis des échanges riches autour du lancement. Plusieurs pistes ont été évoquées, et l'équipe reviendra sur le sujet prochainement.</p>
+      </div>
+    </div>
+    <aside class="notes">
+      <p>Mais ce n'est pas assez : rien ne structure son travail, il improvise. Lundi, tu lui demandes le compte rendu de ta réunion : il te rend la décision et les actions, avec qui fait quoi et pour quand. Jeudi, même demande pour une autre réunion : un joli paragraphe où l'on ne trouve ni décision, ni action.</p>
+      <p>Tu ne sais jamais ce que tu vas obtenir, et tu dois lui réexpliquer le format à chaque fois. Ce qu'il te faut, c'est lui donner la marche à suivre une fois pour toutes.</p>
     </aside>
   </section>
 
   <section class="slide with-mascot" data-section="1" data-gear="4" aria-label="Les skills">
-    <div class="mascot-swap">
-      <img class="mascot" src="assets/mascot/04-skills.svg" alt="Le collègue lit une fiche à cases cochées qu'il tient à deux mains.">
-      <img class="mascot problem-mascot" src="assets/mascot/04-skills-overwhelmed.svg" alt="Le collègue se tient la tête à deux mains au milieu de recettes qui volent autour de lui.">
-    </div>
+    <img class="mascot" src="assets/mascot/04-skills.svg" alt="Le collègue lit une fiche à cases cochées qu'il tient à deux mains.">
     <div class="stack">
-      <h2>Il suit une procédure : les skills</h2>
+      <h2>Donne-lui un guide : les skills</h2>
       <p class="lead">Une recette écrite pour une tâche précise.</p>
-      <span class="chips"><span class="chips-label">Exemples de skills</span><span class="chip">Écrire un message de commit</span><span class="chip">Relire une PR</span><span class="chip">Rédiger un ADR</span></span>
-      <div class="card warn step problem"><span class="problem-label">Problème</span>Des recettes partout : il ne sait plus où donner de la tête.</div>
+      <span class="chips"><span class="chips-label">Exemples de skills</span><span class="chip">Synthétiser des entretiens</span><span class="chip">Rédiger une user story</span><span class="chip">Écrire un compte rendu</span></span>
+      <div class="card good step unlock scene">
+        <div>
+          <span class="unlock-label">Tu peux</span>
+          Obtenir le même travail, bien fait, à chaque fois.
+          <p class="scene-analogy">Comme dans ta cuisine : sans recette, il prend la première poêle venue et de l'huile. Avec la tienne, il fait tes crêpes, au beurre salé.</p>
+        </div>
+        <img src="assets/mascot/04-skills-cook.svg" alt="Le collègue tient ta fiche de recette d'une main et fait sauter une crêpe avec sa poêle de l'autre, ravi.">
+      </div>
     </div>
     <aside class="notes">
-      <p>Donnons-lui des recettes : les skills.</p>
-      <p>Une procédure écrite pour une tâche précise. Il la suit au lieu d'improviser : « chez moi, on cuit les pâtes dans cette casserole ».</p>
+      <p>Donnons-lui un guide. La forme la plus simple, ce sont des recettes : les skills.</p>
+      <p>Une procédure écrite pour une tâche précise. Il la suit au lieu d'improviser.</p>
+      <p>Imagine-le dans ta cuisine. Demande-lui des crêpes sans rien dire : il prend la première poêle venue, de l'huile au lieu du beurre salé, et fait la pâte à sa façon. Donne-lui ta recette, la poêle en fonte, le beurre salé, la pâte qui repose une heure : il fait tes crêpes, à chaque fois.</p>
+      <p>Tu peux maintenant obtenir le même travail, bien fait, à chaque fois : tes synthèses d'entretiens toujours au même format, avec les mêmes questions posées.</p>
+    </aside>
+  </section>
+
+  <section class="slide problem-slide" data-section="1" data-gear="4" aria-label="Problème : trop de recettes">
+    <img class="mascot" src="assets/mascot/04-skills-overwhelmed.svg" alt="Le collègue se tient la tête à deux mains au milieu de recettes qui volent autour de lui.">
+    <span class="problem-label">Problème</span>
+    <p class="problem-statement">Des recettes partout : il ne sait plus où donner de la tête.</p>
+    <aside class="notes">
       <p>Ok, mais c'est pénible à gérer, toutes ces recettes. Il y en a partout, et lui ne sait plus où donner de la tête.</p>
     </aside>
   </section>
 
-  <section class="slide with-mascot" data-section="1" data-gear="5" aria-label="Le framework de skills">
-    <div class="mascot-swap">
-      <img class="mascot" src="assets/mascot/05-framework.svg" alt="Le collègue lit un gros manuel ouvert, la fiche glissée dedans comme marque-page.">
-      <img class="mascot problem-mascot" src="assets/mascot/05-framework-problem.svg" alt="Le collègue lève les yeux de son manuel, perplexe, un point d'interrogation au-dessus de la tête.">
-    </div>
+  <section class="slide with-mascot" data-section="1" data-gear="4" aria-label="Le framework de skills">
+    <img class="mascot" src="assets/mascot/05-framework.svg" alt="Le collègue lit un gros manuel ouvert, la fiche glissée dedans comme marque-page.">
     <div class="stack">
-      <h2>Une méthode complète : le framework de skills</h2>
+      <h2>Une petite évolution : le framework de skills</h2>
       <p class="lead">Les recettes rangées en une méthode, avec des étapes et des rôles.</p>
       <span class="chips"><span class="chips-label">Exemples de frameworks</span><span class="chip">BMAD</span><span class="chip">Spec Kit</span><span class="chip">GSD</span></span>
-      <div class="card warn step problem"><span class="problem-label">Problème</span>Il ne connaît rien de notre boîte.</div>
+      <div class="card good step unlock"><span class="unlock-label">Tu peux</span>Dérouler toute une démarche, de l'idée à la livraison.</div>
     </div>
     <aside class="notes">
-      <p>Donnons-lui un vrai manuel : le framework.</p>
+      <p>Une petite évolution du guide : un vrai manuel, le framework.</p>
       <p>Des skills qui s'enchaînent, avec des étapes et des rôles, du besoin jusqu'à la review. Le framework contient les skills : la recette lui sert de marque-page.</p>
+      <p>Tu peux maintenant dérouler toute une démarche avec lui, de l'idée à la livraison, étape par étape.</p>
+    </aside>
+  </section>
+
+  <section class="slide problem-slide" data-section="1" data-gear="4" aria-label="Problème : il ne connaît pas l'entreprise">
+    <img class="mascot" src="assets/mascot/05-framework-problem.svg" alt="Le collègue lève les yeux de son manuel, perplexe, un point d'interrogation au-dessus de la tête.">
+    <span class="problem-label">Problème</span>
+    <p class="problem-statement">Il ne connaît rien de notre boîte.</p>
+    <aside class="notes">
       <p>Cool, ton manuel. Mais il ne connaît rien de notre boîte !</p>
     </aside>
   </section>
 
-  <section class="slide with-mascot" data-section="1" data-gear="6" aria-label="Le SDLC d'entreprise">
+  <section class="slide with-mascot" data-section="1" data-gear="5" aria-label="Le SDLC d'entreprise">
     <img class="mascot" src="assets/mascot/06-sdlc.svg" alt="Le collègue en tenue de l'entreprise, casquette sur la tête, lève le pouce.">
     <div class="stack">
-      <h2>Nos règles du jeu : le SDLC d'entreprise</h2>
-      <p class="lead">Il surcharge le framework avec <strong>nos conventions, notre vocabulaire, nos skills</strong>.</p>
+      <h2>Rends-le corporate avec la surcouche de ton entreprise</h2>
+      <p class="lead">C'est le SDLC d'entreprise : il surcharge le framework avec <strong>ses conventions, son vocabulaire, ses skills</strong>.</p>
+      <div class="card good step unlock"><span class="unlock-label">Tu peux</span>Livrer un travail que l'équipe reconnaît comme le sien.</div>
     </div>
     <aside class="notes">
-      <p>Hop : le SDLC d'entreprise, qui surcharge le framework.</p>
-      <p>La surcouche maison : nos conventions, notre vocabulaire, nos skills. On l'installe dans le projet dès la première PR.</p>
+      <p>Hop : rends-le corporate avec la surcouche de ton entreprise. C'est le SDLC d'entreprise, qui surcharge le framework.</p>
+      <p>La surcouche maison : ses conventions, son vocabulaire, ses skills. On l'installe dans le projet dès la première PR.</p>
+      <p>Tu peux maintenant livrer un travail que l'équipe reconnaît comme le sien : nos templates, nos règles, nos mots.</p>
     </aside>
   </section>
 
-  <section class="slide" data-section="1" data-gear="6" aria-label="L'équiper, couche par couche">
+  <section class="slide" data-section="1" data-gear="5" aria-label="L'équiper, couche par couche">
     <h2>L'équiper, couche par couche</h2>
     <ol class="gear">
-      <li><img src="assets/mascot/01-llm.svg" alt="Une tête seule qui parle, avec une bulle."><span class="term">LLM</span><span class="gear-examples">ChatGPT · Gemini sur le web</span></li>
-      <li><img src="assets/mascot/02-harness.svg" alt="Le collègue a un corps et appuie sur le bouton de sa télécommande."><span class="term">Harnais</span><span class="gear-examples">Claude Code · Codex · Copilot</span></li>
-      <li><img src="assets/mascot/03-storage.svg" alt="Le collègue enfonce une disquette Git dans son crâne."><span class="term">Mémoire sauvegardée</span><span class="gear-examples">Des fichiers, mieux : un dépôt GitHub</span></li>
-      <li><img src="assets/mascot/04-skills.svg" alt="Le collègue lit une fiche à cases cochées."><span class="term">Skills</span><span class="gear-examples">Des recettes</span></li>
-      <li><img src="assets/mascot/05-framework.svg" alt="Le collègue lit un gros manuel, la fiche glissée dedans comme marque-page."><span class="term">Framework de skills</span><span class="gear-examples">BMAD · Spec Kit · GSD</span></li>
-      <li><img src="assets/mascot/06-sdlc.svg" alt="Le collègue en tenue de l'entreprise lève le pouce."><span class="term">SDLC d'entreprise</span><span class="gear-examples">La surcouche maison</span></li>
+      <li><img src="assets/mascot/01-llm.svg" alt="Une tête seule qui parle, avec une bulle."><span class="term">LLM</span><span class="gear-unlock">Poser des questions</span></li>
+      <li><img src="assets/mascot/02-harness.svg" alt="Le collègue a un corps et appuie sur le bouton de sa télécommande."><span class="term">Harnais</span><span class="gear-unlock">Agir dans tes outils</span></li>
+      <li><img src="assets/mascot/03-storage.svg" alt="Le collègue enfonce une disquette Git dans son crâne."><span class="term">Mémoire</span><span class="gear-unlock">Vibe coder</span></li>
+      <li><img src="assets/mascot/05-framework.svg" alt="Le collègue lit un gros manuel, la fiche glissée dedans comme marque-page."><span class="term">Guide</span><span class="gear-unlock">Travailler avec méthode</span></li>
+      <li><img src="assets/mascot/06-sdlc.svg" alt="Le collègue en tenue de l'entreprise lève le pouce."><span class="term">SDLC d'entreprise</span><span class="gear-unlock">Livrer comme l'équipe</span></li>
     </ol>
     <aside class="notes">
-      <p>Récapitulons : chaque couche répond à la limite de la précédente.</p>
+      <p>Récapitulons : chaque couche répond à la limite de la précédente, et te permet d'en faire plus. Poser des questions, puis agir dans tes outils, vibe coder, travailler avec méthode, et enfin livrer comme l'équipe.</p>
     </aside>
   </section>
 
-  <section class="slide with-mascot hero" data-section="1" data-gear="6" aria-label="Il faut l'onboarder">
+  <section class="slide with-mascot hero" data-section="1" data-gear="5" aria-label="Il faut l'onboarder">
     <img class="mascot" src="assets/mascot/06-sdlc.svg" alt="Le collègue en tenue de l'entreprise, casquette sur la tête, lève le pouce.">
     <div class="stack">
       <p class="big">Il connaît l'entreprise.</p>
@@ -757,8 +819,7 @@
     { label: "Bulle de parole", icon: "bubble" },
     { label: "Télécommande", icon: "remote" },
     { label: "Disquette", icon: "floppy" },
-    { label: "Recette", icon: "recipe" },
-    { label: "Manuel", icon: "manual" },
+    { label: "Guide", icon: "manual" },
     { label: "Casquette", icon: "cap" },
   ];
   const SECTION_LABELS = ["L'équiper", "L'onboarder", "Ses traits"];
