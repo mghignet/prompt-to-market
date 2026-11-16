@@ -1,4 +1,4 @@
-// Generates the hello, pensive, overwhelmed and RAG poses, the six mascot levels (cumulative equipment),
+// Generates the hello, pensive, overwhelmed, RAG and pilot poses, the six mascot levels (cumulative equipment),
 // their problem variants, an overview sheet and the inventory icons.
 // Usage: node assets/mascot/build.mjs
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -81,6 +81,14 @@ const PENSIVE = {
   desc: "Le collègue en pied, sans aucun équipement, la main sous le menton et le regard en l'air : il arrive les mains vides et se demande par où commencer.",
 };
 const PENSIVE_LEVEL = -1;
+
+// Still the harness level: he aims his remote at the tools he drives, like you do.
+const PILOT = {
+  file: "02-harness-pilot.svg",
+  label: "Harnais, aux commandes",
+  desc: "Le collègue tend le bras et pointe sa télécommande vers la droite, des ondes en sortent : il pilote tes outils.",
+};
+const PILOT_LEVEL = 2.5;
 
 // Between skills and framework: he has the floppy but not the cap yet, and too many recipes.
 const OVERWHELMED = {
@@ -308,6 +316,22 @@ const handHoldingRemote = ([x, y]) =>
   `<ellipse cx="${x + 15}" cy="${y - 18}" rx="6" ry="6" fill="${C.skin}"/>` +
   `<ellipse cx="${x + 15}" cy="${y - 6}" rx="6" ry="6" fill="${C.skin}"/>`;
 
+// The waves pulse one after the other, unless the viewer asked for less motion.
+const signalWaves = ([x, y]) =>
+  `<style>.wave{animation:wave 1.4s ease-in-out infinite}.wave+.wave{animation-delay:.25s}@keyframes wave{0%,100%{opacity:.25}50%{opacity:1}}@media (prefers-reduced-motion:reduce){.wave{animation:none}}</style>` +
+  [52, 64]
+    .map((r) => {
+      const dx = Math.round(r * Math.sin(Math.PI / 8));
+      const dy = Math.round(r * Math.cos(Math.PI / 8));
+      return `<path class="wave" d="M${x - dx} ${y - dy}A${r} ${r} 0 0 1 ${x + dx} ${y - dy}" fill="none" stroke-width="5"/>`;
+    })
+    .join("");
+
+// Same grip as handHoldingRemote, turned so the remote points at the slide's content on his left.
+const REMOTE_AIM_ANGLE = 48;
+const handAimingRemote = ([x, y]) =>
+  `<g transform="rotate(${REMOTE_AIM_ANGLE} ${x} ${y})">${handHoldingRemote([x, y])}${signalWaves([x, y])}</g>`;
+
 const pointingHand = ([x, y]) =>
   `<rect x="${x - 5}" y="${y}" width="10" height="26" rx="5" fill="${C.skin}"/>` +
   `<circle cx="${x}" cy="${y}" r="14" fill="${C.skin}"/>`;
@@ -336,6 +360,10 @@ const FRONT_ARMS = {
     left: { shoulder: LEFT_SHOULDER, control: [-84, 330], end: [-6, 342], hand: [2, 342] },
     right: { shoulder: RIGHT_SHOULDER, control: [92, 310], end: [16, 270], pointing: [4, 266] },
   },
+  [PILOT_LEVEL]: {
+    left: { shoulder: LEFT_SHOULDER, control: [-84, 300], end: [-90, 350], hand: [-92, 360] },
+    right: { shoulder: RIGHT_SHOULDER, control: [96, 266], end: [104, 228], aimsRemote: [108, 222] },
+  },
   3: {
     left: { shoulder: LEFT_SHOULDER, control: [-116, 250], end: [-110, 182], hand: [-108, 174], overHead: true },
     right: { shoulder: RIGHT_SHOULDER, control: [80, 300], end: [86, 336], holdsRemote: [88, 348] },
@@ -352,10 +380,11 @@ const drawHand = (arm) => {
   if (arm.waving) return wavingHand(arm.waving);
   if (arm.pointing) return pointingHand(arm.pointing);
   if (arm.holdsRemote) return handHoldingRemote(arm.holdsRemote);
+  if (arm.aimsRemote) return handAimingRemote(arm.aimsRemote);
   return hand(arm.hand);
 };
 
-const FRONT_PROPS = { [HELLO_LEVEL]: () => "", [PENSIVE_LEVEL]: () => "", [OVERWHELMED_LEVEL]: () => "", 2: () => tvRemote(-13, 284) + pressLines(), 3: () => "", 6: closedBook };
+const FRONT_PROPS = { [HELLO_LEVEL]: () => "", [PENSIVE_LEVEL]: () => "", [OVERWHELMED_LEVEL]: () => "", [PILOT_LEVEL]: () => "", 2: () => tvRemote(-13, 284) + pressLines(), 3: () => "", 6: closedBook };
 
 const frontBody = (level) => {
   const { shirt, pants } = outfit(level);
@@ -412,6 +441,7 @@ const FACE = {
   [RAG_LEVEL]: { brows: "raised", eye: { pupil: 7, look: [-5, 2] }, mouth: "talk" },
   [OVERWHELMED_LEVEL]: { brows: "worried", eye: { pupil: 5.5, look: [0, 1] }, mouth: "wavy" },
   [PENSIVE_LEVEL]: { brows: "raised", eye: { pupil: 7, look: [-6, -7] }, mouth: "pensive", tilt: -6 },
+  [PILOT_LEVEL]: { brows: "confident", eye: { pupil: 7, look: [7, -2] }, mouth: "smirk", tilt: 4 },
   [HELLO_LEVEL]: { brows: "happy", eye: { pupil: 7, look: [0, 0] }, mouth: "bigSmile", tilt: 6 },
   1: { brows: "raised", eye: { pupil: 7, look: [3, -1] }, mouth: "talk" },
   2: { brows: "neutral", eye: { pupil: 7, look: [0, 7] }, mouth: "smile" },
@@ -629,6 +659,7 @@ writeCharacterSvg(HELLO, HELLO_LEVEL);
 writeCharacterSvg(PENSIVE, PENSIVE_LEVEL);
 writeCharacterSvg(OVERWHELMED, OVERWHELMED_LEVEL);
 writeCharacterSvg(RAG, RAG_LEVEL);
+writeCharacterSvg(PILOT, PILOT_LEVEL);
 PROBLEM_POSES.forEach((pose) => writeCharacterSvg(pose, pose.level, pose));
 LEVELS.forEach((level, i) => writeCharacterSvg(level, i + 1));
 
@@ -646,6 +677,7 @@ writeFileSync(join(outDir, "overview.svg"), overview);
 
 // Inventory icons for the slides: the item he receives at each level, cropped from the props above.
 const ITEMS = [
+  { file: "bubble.svg", label: "Bulle de parole", viewBox: "79 30 100 100", draw: speechBubble },
   { file: "remote.svg", label: "Télécommande", viewBox: "-28 -5 86 86", draw: () => tvRemote(0, 0) },
   { file: "floppy.svg", label: "Disquette", viewBox: "-150 -90 108 108", draw: () => floppy(false) },
   { file: "recipe.svg", label: "Recette", viewBox: "-54 -54 108 108", draw: () => sheet(0, 0, 0) },
