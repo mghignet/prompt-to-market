@@ -12,10 +12,22 @@ On lui parle comme à un humain, pas comme à un système informatique. On l'éq
 
 Ouverture : le collègue dit bonjour. Clôture : y revenir.
 
+## Public et promesse
+
+Public : les Product Managers d'abord, et plus largement ceux qui ne sont pas pointus en tech. Ils utilisent déjà l'IA, mais pour poser des questions. Durée : environ 60 minutes, questions incluses.
+
+Promesse : « À la fin, tu sauras lancer un projet qui exploite vraiment l'IA, sur ton sujet de discovery. »
+
+Double usage : l'orateur commente devant la salle et vouvoie ; la présentation se relit ensuite seul, avec les notes (touche N), qui tutoient comme les slides.
+
 ## Intro. Ton nouveau collègue
 
+- Titre : « L'IA, ton nouveau collègue. Tu t'en sers déjà. Pas encore à pleine puissance. »
+- Mains levées : qui a utilisé une IA cette semaine ? Pour autre chose que poser une question ? La salle constate l'écart elle-même.
+- La promesse, seule sur sa slide, puis pourquoi maintenant : les devs ont pris le virage, le produit en est encore à la question-réponse.
 - Le collègue dit bonjour : il est brillant, on lui parle comme à un humain (exemple avant/après d'une demande).
-- Le collègue pensif : il arrive les mains vides, il faut l'équiper, puis l'onboarder.
+- Le collègue pensif : il arrive les mains vides, il faut l'équiper, l'onboarder et connaître ses traits.
+- Passerelle vers le LLM : ceux qui ne font que poser des questions n'utilisent que sa tête.
 
 ## 1. L'équiper
 
@@ -123,7 +135,8 @@ Message : on corrige la cause, pas le symptôme.
 
 ## Points à trancher
 
-- Public cible et durée de la présentation ?
+- Le corps du deck parle encore aux devs (PR, commits, worktrees, `agent.md`). À relire partie par partie : un PM s'en sert-il pour lancer son projet ?
+- Version courte : quelles slides sauter ?
 - Combien de slides par partie ?
 - Quels exemples concrets montrer en démo ou en capture ?
 - Les pratiques citées sont-elles toutes à présenter comme recommandées, ou certaines comme « retour d'expérience à nuancer » (taille de contexte, worktrees, distinction décision / question close) ?
