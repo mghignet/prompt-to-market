@@ -1,5 +1,6 @@
 // Generates the hello, pensive, overwhelmed, RAG, pilot and cook poses, the six mascot levels (cumulative equipment),
-// their problem variants, an overview sheet and the inventory icons.
+// their problem variants, the onboarding poses, the trait poses, the scenes with the other colleagues,
+// an overview sheet and the inventory icons.
 // Usage: node assets/mascot/build.mjs
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -115,6 +116,102 @@ const COOK = {
 const COOK_LEVEL = 4.2;
 const isHeadOnly = (level) => level === 1 || level === RAG_LEVEL;
 
+// Onboarding (part 2): fully equipped, cap on. He reads the documents you give him.
+const ONBOARD = {
+  file: "07-onboard.svg",
+  label: "Onboarding",
+  desc: "Le collègue en tenue de l'entreprise, le manuel sous le bras, tient la pile de documents que tu lui donnes et la regarde avec attention.",
+};
+const ONBOARD_LEVEL = 6.2;
+// Same outfit, arms down: the body of the onboarding problem poses.
+const ONBOARD_TROUBLED_LEVEL = 6.1;
+// Cap on, hands on his head, sheets flying around him: the session has grown too long.
+const ONBOARD_OVERWHELMED_LEVEL = 6.3;
+
+// The poses below are fully equipped too: they share level 6, the decimals only tell them apart.
+// Part 2: he holds out his plan for you to review.
+const PROPOSE = {
+  file: "08-propose.svg",
+  label: "Sa proposition",
+  desc: "Le collègue en tenue de l'entreprise tend une feuille vers toi, l'air confiant : il te soumet son plan avant de s'y mettre.",
+};
+const PROPOSE_LEVEL = 6.4;
+// Part 3: he hands a sheet to each of two other colleagues, the sub-agents, who read theirs.
+const DELEGATE_LEVEL = 6.5;
+const READ_SHEET_LEVEL = 6.6;
+// Part 2: he carries out the plan, pencil in hand.
+const WRITE = {
+  file: "08-write.svg",
+  label: "Il écrit",
+  desc: "Le collègue en tenue de l'entreprise écrit sur une feuille, crayon en main, le bout de la langue sorti, concentré.",
+};
+const WRITE_LEVEL = 6.65;
+// Each session starts with him saying hello, fresh; at the closing, every colleague waves.
+const WAVE_LEVEL = 6.7;
+const SESSION = {
+  file: "08-session.svg",
+  label: "Session neuve",
+  desc: "Le collègue en tenue de l'entreprise nous fait coucou de la main : une session neuve commence, il arrive frais.",
+};
+
+// Part 3, his traits.
+const CHATTY = {
+  file: "09-chatty.svg",
+  label: "Bavard",
+  desc: "Le collègue en tenue de l'entreprise parle, l'index levé, à côté d'une immense bulle remplie de lignes qui n'en finit pas.",
+};
+const CHATTY_LEVEL = 6.81;
+const OVERDO = {
+  file: "09-overdo.svg",
+  label: "Il en fait trop",
+  desc: "Le collègue en tenue de l'entreprise, ravi, porte une pile vacillante de documents et de classeurs qui monte plus haut que sa tête.",
+};
+const OVERDO_LEVEL = 6.82;
+const OWN_WORDS = {
+  file: "09-own-words.svg",
+  label: "Ses mots à lui",
+  desc: "Le collègue en tenue de l'entreprise, une main sur la hanche et l'index levé, l'air sûr de lui, prononce un mot gribouillé qu'il vient d'inventer.",
+};
+const OWN_WORDS_LEVEL = 6.83;
+const PLEASER = {
+  file: "09-pleaser.svg",
+  label: "Il veut te faire plaisir",
+  desc: "Le collègue en tenue de l'entreprise lève les deux pouces avec un grand sourire, des petits cœurs autour de lui : il te donne raison.",
+};
+const PLEASER_LEVEL = 6.84;
+
+// His look. The other colleagues are equipped like him, cap included, but each has their own.
+const MAIN_LOOK = { skin: C.skin, hair: C.hair, hairStyle: "short", shoe: C.shoe, hasGlasses: true, hasLashes: false };
+const COLLEAGUE_LOOKS = {
+  ponytail: { skin: "#E9B48C", hair: "#B8502A", hairStyle: "ponytail", shoe: C.remoteButton, hasGlasses: false, hasLashes: true },
+  curls: { skin: "#9A6446", hair: "#24160F", hairStyle: "curls", shoe: C.gold, hasGlasses: false, hasLashes: false },
+  long: { skin: "#F4D6BC", hair: "#E2B24E", hairStyle: "long", shoe: C.cyan, hasGlasses: false, hasLashes: true },
+};
+
+const SUBAGENTS = {
+  file: "08-subagents.svg",
+  label: "Les sous-agents",
+  desc: "Au centre, le collègue tend une feuille de chaque côté à deux autres collègues, équipés comme lui : une fille à queue de cheval et baskets rouges, un garçon aux cheveux bouclés et baskets jaunes. Chacun lit la sienne.",
+  width: 1000,
+  figures: [
+    { level: READ_SHEET_LEVEL, look: COLLEAGUE_LOOKS.ponytail, x: 0, y: 60, scale: 0.88 },
+    { level: DELEGATE_LEVEL, look: MAIN_LOOK, x: 300, y: 0, scale: 1 },
+    { level: READ_SHEET_LEVEL, look: COLLEAGUE_LOOKS.curls, x: 648, y: 60, scale: 0.88 },
+  ],
+};
+const TEAM_HELLO = {
+  file: "10-team-hello.svg",
+  label: "L'équipe dit bonjour",
+  desc: "Quatre collègues équipés, côte à côte, nous font coucou de la main : une fille blonde aux cheveux longs, une fille à queue de cheval, le collègue à lunettes et un garçon aux cheveux bouclés, chacun avec ses baskets.",
+  width: 1300,
+  figures: [
+    { level: WAVE_LEVEL, look: COLLEAGUE_LOOKS.long, x: 0, y: 0, scale: 1 },
+    { level: WAVE_LEVEL, look: COLLEAGUE_LOOKS.ponytail, x: 300, y: 0, scale: 1 },
+    { level: WAVE_LEVEL, look: MAIN_LOOK, x: 600, y: 0, scale: 1 },
+    { level: WAVE_LEVEL, look: COLLEAGUE_LOOKS.curls, x: 900, y: 0, scale: 1 },
+  ],
+};
+
 // Same equipment, troubled face: the slides swap to these when they reveal the level's limit.
 const PROBLEM_POSES = [
   {
@@ -154,6 +251,38 @@ const PROBLEM_POSES = [
     file: "05-framework-problem.svg",
     label: "Framework, perdu",
     desc: "Il lève les yeux de son manuel, perplexe, un point d'interrogation au-dessus de la tête : il ne connaît rien de notre entreprise.",
+    face: { brows: "skeptical", eye: { pupil: 6, look: [-4, -5] }, mouth: "oh" },
+    extras: () => questionMark(118, 44),
+  },
+  {
+    level: ONBOARD_TROUBLED_LEVEL,
+    file: "07-onboard-forgot.svg",
+    label: "Onboarding, session perdue",
+    desc: "En tenue de l'entreprise, il regarde en l'air, bouche bée, une bulle de pensée vide au-dessus de la tête : la session est fermée, rien n'a été écrit.",
+    face: { brows: "raised", eye: { pupil: 5, look: [-5, -6] }, mouth: "oh" },
+    extras: () => emptyThought(),
+  },
+  {
+    level: ONBOARD_TROUBLED_LEVEL,
+    file: "07-onboard-messy.svg",
+    label: "Onboarding, rangé à sa façon",
+    desc: "En tenue de l'entreprise, il a l'air embarrassé, une goutte de sueur sur la tempe : il a tout rangé à sa façon.",
+    face: { brows: "worried", eye: { pupil: 7, look: [5, 1] }, mouth: "pensive", tilt: -12 },
+    extras: () => sweatDrop(88, 112),
+  },
+  {
+    level: ONBOARD_OVERWHELMED_LEVEL,
+    file: "07-onboard-overwhelmed.svg",
+    label: "Onboarding, session trop longue",
+    desc: "En tenue de l'entreprise, il se tient la tête à deux mains au milieu de feuilles qui volent : la session s'est trop allongée, il s'emmêle.",
+    face: { brows: "worried", eye: { pupil: 5.5, look: [0, 1] }, mouth: "wavy" },
+    extras: () => "",
+  },
+  {
+    level: ONBOARD_TROUBLED_LEVEL,
+    file: "07-onboard-mixed.svg",
+    label: "Onboarding, sources mélangées",
+    desc: "En tenue de l'entreprise, il lève les yeux, perplexe, un point d'interrogation au-dessus de la tête : l'ancien et le nouveau se contredisent.",
     face: { brows: "skeptical", eye: { pupil: 6, look: [-4, -5] }, mouth: "oh" },
     extras: () => questionMark(118, 44),
   },
@@ -223,14 +352,15 @@ const questionMark = (x, y) =>
   `<path d="M${x - 12} ${y - 14}Q${x - 12} ${y - 30} ${x + 2} ${y - 30}Q${x + 16} ${y - 30} ${x + 16} ${y - 16}Q${x + 16} ${y - 6} ${x + 4} ${y}Q${x} ${y + 3} ${x} ${y + 12}" fill="none" stroke-width="7"/>` +
   `<circle cx="${x}" cy="${y + 26}" r="4" fill="${C.ink}" stroke="none"/>`;
 
-const documentStack = () => `
-  <g transform="translate(-142 152) rotate(-8)">
+// Beside the RAG head by default; the dotted line is his gaze reading it.
+const documentStack = (x = -142, y = 152, withGaze = true) => `
+  <g transform="translate(${x} ${y}) rotate(-8)">
     <rect x="-24" y="-34" width="52" height="66" rx="4" fill="${C.paper}" stroke-width="4"/>
     <rect x="-30" y="-38" width="52" height="66" rx="4" fill="${C.paper}" stroke-width="4"/>
     <rect x="-36" y="-42" width="52" height="66" rx="4" fill="${C.paper}" stroke-width="4"/>
     <path d="M-28 -28H8M-28 -18H8M-28 -8H0M-28 2H8M-28 12H-4" fill="none" stroke="${C.paperLine}" stroke-width="3.5"/>
   </g>
-  <path d="M-112 100Q-104 74 -88 82" fill="none" stroke-width="4" stroke-dasharray="1 9"/>`;
+  ${withGaze ? `<path d="M-112 100Q-104 74 -88 82" fill="none" stroke-width="4" stroke-dasharray="1 9"/>` : ""}`;
 
 const thoughtDots = () =>
   [
@@ -243,6 +373,25 @@ const thoughtDots = () =>
 
 const sparkle = (x, y, s) =>
   `<path d="M${x} ${y - s} Q${x} ${y} ${x + s} ${y} Q${x} ${y} ${x} ${y + s} Q${x} ${y} ${x - s} ${y} Q${x} ${y} ${x} ${y - s} Z" fill="${C.gold}" stroke-width="3"/>`;
+
+const heart = (x, y, s) =>
+  `<path d="M${x} ${y + s}C${x - s * 1.6} ${y} ${x - s} ${y - s} ${x} ${y - s * 0.4}C${x + s} ${y - s} ${x + s * 1.6} ${y} ${x} ${y + s}Z" fill="${C.pink}" stroke-width="3.5"/>`;
+
+// A tall bubble beside his head, full of lines, that trails off: he keeps talking.
+const longSpeech = () => {
+  const lineLengths = [74, 66, 78, 58, 74, 70, 50, 76, 64, 72];
+  const lines = lineLengths.map((length, i) => `M-194 ${30 + i * 19}H${-194 + length}`).join("");
+  return `
+  <path d="M-196 8H-112Q-100 8 -100 20V182L-84 198L-100 200V222Q-100 234 -112 234H-196Q-208 234 -208 222V20Q-208 8 -196 8Z" fill="${C.paper}"/>
+  <path d="${lines}" fill="none" stroke="${C.paperLine}" stroke-width="5"/>
+  ${[-170, -154, -138].map((x) => `<circle cx="${x}" cy="254" r="4" fill="${C.ink}" stroke="none"/>`).join("")}`;
+};
+
+// A short bubble holding a scribble, a word he made up, below the floppy and level with his mouth.
+const madeUpWord = () => `
+  <path d="M-196 160H-114Q-104 160 -104 170V180L-86 192L-104 196V208Q-104 218 -114 218H-196Q-206 218 -206 208V170Q-206 160 -196 160Z" fill="${C.paper}"/>
+  <path d="M-192 190C-186 174 -180 204 -172 186C-166 172 -162 202 -154 188C-148 176 -144 200 -136 186C-130 176 -126 196 -120 188" fill="none" stroke-width="4.5"/>
+  <path d="M-190 206H-122" fill="none" stroke="${C.remoteButton}" stroke-width="3.5" stroke-dasharray="2 7"/>`;
 
 // --- Props held in the hands -------------------------------------------------
 
@@ -271,6 +420,41 @@ const sheet = (x = 60, y = 300, angle = -12, scale = 1) => `
           (i < 2 ? `<path d="M-26 ${y}L-23 ${y + 3}L-17 ${y - 4}" fill="none" stroke="${C.check}" stroke-width="3.5"/>` : ""),
       )
       .join("")}
+  </g>`;
+
+// Binders and sheets piled from (x, bottomY) upward, swaying further off-centre the higher they go.
+const TOWER_ITEMS = [
+  { height: 26, fill: C.book },
+  { height: 13, fill: C.paper },
+  { height: 13, fill: C.paper },
+  { height: 24, fill: C.gold },
+  { height: 13, fill: C.paper },
+  { height: 22, fill: C.pink },
+  { height: 13, fill: C.paper },
+  { height: 13, fill: C.paper },
+  { height: 24, fill: C.cyan },
+  { height: 13, fill: C.paper },
+  { height: 22, fill: C.book },
+  { height: 13, fill: C.paper },
+];
+const documentTower = (x, bottomY) => {
+  let top = bottomY;
+  const items = TOWER_ITEMS.map(({ height, fill }, i) => {
+    top -= height;
+    const sway = (i % 2 === 0 ? 1 : -1) * Math.min(i, 6);
+    return `<rect x="${x - 36 + sway}" y="${top}" width="72" height="${height}" rx="3" fill="${fill}" stroke-width="4"/>`;
+  }).join("");
+  const wobbleLines = `<path d="M${x + 50} ${top + 6}Q${x + 58} ${top + 20} ${x + 50} ${top + 34}M${x - 48} ${top + 2}Q${x - 56} ${top + 16} ${x - 48} ${top + 30}" fill="none" stroke-width="4"/>`;
+  return `<g transform="rotate(3 ${x} ${bottomY})">${items}${wobbleLines}</g>`;
+};
+
+// A pencil whose tip rests at (x, y), slanting up to the right. Wood is paper-coloured: C.skin is reserved for skin.
+const pencil = (x, y) => `
+  <g transform="translate(${x} ${y}) rotate(-50)">
+    <path d="M12 -6L0 0L12 6Z" fill="${C.paper}" stroke-width="4"/>
+    <path d="M4 -2L0 0L4 2Z" fill="${C.ink}" stroke="none"/>
+    <rect x="12" y="-6" width="44" height="12" rx="2" fill="${C.gold}" stroke-width="4"/>
+    <rect x="56" y="-6" width="10" height="12" rx="3" fill="${C.pink}" stroke-width="4"/>
   </g>`;
 
 const openBook = () => `
@@ -357,6 +541,10 @@ const pointingHand = ([x, y]) =>
   `<rect x="${x - 5}" y="${y}" width="10" height="26" rx="5" fill="${C.skin}"/>` +
   `<circle cx="${x}" cy="${y}" r="14" fill="${C.skin}"/>`;
 
+const raisedIndex = ([x, y]) =>
+  `<rect x="${x - 5}" y="${y - 34}" width="10" height="30" rx="5" fill="${C.skin}"/>` +
+  `<circle cx="${x}" cy="${y}" r="14" fill="${C.skin}"/>`;
+
 // --- Bodies ------------------------------------------------------------------
 
 // Arm poses of the front-facing levels. A hand marked overHead touches the
@@ -397,6 +585,54 @@ const FRONT_ARMS = {
     left: { shoulder: LEFT_SHOULDER, control: [-108, 296], end: [-100, 244], thumbsUp: [-100, 236] },
     right: { shoulder: RIGHT_SHOULDER, control: [96, 300], end: [102, 350], hand: [104, 360] },
   },
+  [ONBOARD_TROUBLED_LEVEL]: {
+    left: { shoulder: LEFT_SHOULDER, control: [-84, 300], end: [-90, 350], hand: [-92, 360] },
+    right: { shoulder: RIGHT_SHOULDER, control: [96, 300], end: [102, 350], hand: [104, 360] },
+  },
+  [ONBOARD_LEVEL]: {
+    left: { shoulder: LEFT_SHOULDER, control: [-84, 300], end: [-90, 350], hand: [-92, 360] },
+    right: { shoulder: RIGHT_SHOULDER, control: [96, 300], end: [102, 350], hand: [104, 360] },
+  },
+  [ONBOARD_OVERWHELMED_LEVEL]: {
+    left: { shoulder: LEFT_SHOULDER, control: [-124, 250], end: [-94, 180], hand: [-90, 170], overHead: true },
+    right: { shoulder: RIGHT_SHOULDER, control: [124, 250], end: [94, 180], hand: [90, 170], overHead: true },
+  },
+  [PROPOSE_LEVEL]: {
+    left: { shoulder: LEFT_SHOULDER, control: [-84, 300], end: [-90, 350], hand: [-92, 360] },
+    right: { shoulder: RIGHT_SHOULDER, control: [112, 290], end: [126, 240], hand: [128, 236] },
+  },
+  [DELEGATE_LEVEL]: {
+    left: { shoulder: LEFT_SHOULDER, control: [-100, 280], end: [-134, 290], hand: [-140, 290] },
+    right: { shoulder: RIGHT_SHOULDER, control: [100, 280], end: [134, 290], hand: [140, 290] },
+  },
+  [READ_SHEET_LEVEL]: {
+    left: { shoulder: LEFT_SHOULDER, control: [-88, 324], end: [-32, 320], hand: [-30, 320] },
+    right: { shoulder: RIGHT_SHOULDER, control: [88, 324], end: [32, 320], hand: [30, 320] },
+  },
+  [WRITE_LEVEL]: {
+    left: { shoulder: LEFT_SHOULDER, control: [-90, 326], end: [-42, 328], hand: [-38, 328] },
+    right: { shoulder: RIGHT_SHOULDER, control: [102, 300], end: [40, 296], hand: [36, 294] },
+  },
+  [WAVE_LEVEL]: {
+    left: { shoulder: LEFT_SHOULDER, control: [-84, 300], end: [-90, 350], hand: [-92, 360] },
+    right: { shoulder: RIGHT_SHOULDER, control: [128, 250], end: [122, 182], waving: [122, 164] },
+  },
+  [CHATTY_LEVEL]: {
+    left: { shoulder: LEFT_SHOULDER, control: [-84, 300], end: [-90, 350], hand: [-92, 360] },
+    right: { shoulder: RIGHT_SHOULDER, control: [120, 276], end: [112, 214], raisedIndex: [112, 206] },
+  },
+  [OVERDO_LEVEL]: {
+    left: { shoulder: LEFT_SHOULDER, control: [-24, 336], end: [74, 300], hand: [80, 298] },
+    right: { shoulder: RIGHT_SHOULDER, control: [104, 318], end: [100, 350], hand: [104, 354] },
+  },
+  [OWN_WORDS_LEVEL]: {
+    left: { shoulder: LEFT_SHOULDER, control: [-108, 292], end: [-58, 334], hand: [-56, 336] },
+    right: { shoulder: RIGHT_SHOULDER, control: [120, 276], end: [112, 214], raisedIndex: [112, 206] },
+  },
+  [PLEASER_LEVEL]: {
+    left: { shoulder: LEFT_SHOULDER, control: [-108, 296], end: [-100, 244], thumbsUp: [-100, 236] },
+    right: { shoulder: RIGHT_SHOULDER, control: [108, 296], end: [100, 244], thumbsUp: [100, 236] },
+  },
 };
 
 const drawHand = (arm) => {
@@ -404,21 +640,43 @@ const drawHand = (arm) => {
   if (arm.thumbsUp) return thumbsUp(arm.thumbsUp);
   if (arm.waving) return wavingHand(arm.waving);
   if (arm.pointing) return pointingHand(arm.pointing);
+  if (arm.raisedIndex) return raisedIndex(arm.raisedIndex);
   if (arm.holdsRemote) return handHoldingRemote(arm.holdsRemote);
   if (arm.aimsRemote) return handAimingRemote(arm.aimsRemote);
   return hand(arm.hand);
 };
 
-const FRONT_PROPS = { [HELLO_LEVEL]: () => "", [PENSIVE_LEVEL]: () => "", [OVERWHELMED_LEVEL]: () => "", [PILOT_LEVEL]: () => "", [COOK_LEVEL]: () => sheet(-122, 300, -10, 0.7) + panWithFlyingCrepe(100, 298), 2: () => tvRemote(-13, 284) + pressLines(), 3: () => "", 6: closedBook };
+const FRONT_PROPS = {
+  [HELLO_LEVEL]: () => "",
+  [PENSIVE_LEVEL]: () => "",
+  [OVERWHELMED_LEVEL]: () => "",
+  [PILOT_LEVEL]: () => "",
+  [COOK_LEVEL]: () => sheet(-122, 300, -10, 0.7) + panWithFlyingCrepe(100, 298),
+  2: () => tvRemote(-13, 284) + pressLines(),
+  3: () => "",
+  6: closedBook,
+  [ONBOARD_TROUBLED_LEVEL]: closedBook,
+  [ONBOARD_LEVEL]: closedBook,
+  [ONBOARD_OVERWHELMED_LEVEL]: () => "",
+  [PROPOSE_LEVEL]: () => sheet(146, 196, 10, 0.85),
+  [DELEGATE_LEVEL]: () => sheet(-160, 262, -14, 0.55) + sheet(160, 262, 14, 0.55),
+  [READ_SHEET_LEVEL]: () => sheet(0, 302, -4, 0.8),
+  [WRITE_LEVEL]: () => sheet(-10, 308, -8, 0.8) + pencil(14, 318),
+  [WAVE_LEVEL]: () => "",
+  [CHATTY_LEVEL]: () => "",
+  [OVERDO_LEVEL]: () => documentTower(118, 346),
+  [OWN_WORDS_LEVEL]: () => "",
+  [PLEASER_LEVEL]: () => "",
+};
 
-const frontBody = (level) => {
+const frontBody = (level, look) => {
   const { shirt, pants } = outfit(level);
   const { left: leftArm, right: rightArm } = FRONT_ARMS[level];
   return `
   <ellipse cx="0" cy="466" rx="78" ry="9" fill="${C.ink}" opacity=".12" stroke="none"/>
   <path d="M-50 356L50 356L54 446L12 446L0 392L-12 446L-54 446Z" fill="${pants}"/>
-  <path d="M-58 444L-10 444L-8 458Q-8 466 -16 466L-62 466Q-72 466 -68 456Z" fill="${C.shoe}"/>
-  <path d="M58 444L10 444L8 458Q8 466 16 466L62 466Q72 466 68 456Z" fill="${C.shoe}"/>
+  <path d="M-58 444L-10 444L-8 458Q-8 466 -16 466L-62 466Q-72 466 -68 456Z" fill="${look.shoe}"/>
+  <path d="M58 444L10 444L8 458Q8 466 16 466L62 466Q72 466 68 456Z" fill="${look.shoe}"/>
   <rect x="-14" y="204" width="28" height="34" fill="${C.skin}"/>
   <path d="M-52 232C-20 222 20 222 52 232L62 362L-62 362Z" fill="${shirt}"/>
   <path d="M-16 228Q0 246 16 228Z" fill="${C.skin}" stroke-width="4"/>
@@ -441,14 +699,14 @@ const READING_ARMS = {
   },
 };
 
-const readingBody = (level) => {
+const readingBody = (level, look) => {
   const { shirt, pants } = outfit(level);
   const arms = READING_ARMS[level];
   return `
   <ellipse cx="4" cy="466" rx="78" ry="9" fill="${C.ink}" opacity=".12" stroke="none"/>
   <path d="M-44 356L44 356L46 446L10 446L2 392L-8 446L-46 446Z" fill="${pants}"/>
-  <path d="M-50 444L-8 444Q4 446 6 456Q8 466 -4 466L-48 466Q-56 466 -54 456Z" fill="${C.shoe}"/>
-  <path d="M12 444L50 444Q62 446 64 456Q66 466 54 466L12 466Q6 466 8 456Z" fill="${C.shoe}"/>
+  <path d="M-50 444L-8 444Q4 446 6 456Q8 466 -4 466L-48 466Q-56 466 -54 456Z" fill="${look.shoe}"/>
+  <path d="M12 444L50 444Q62 446 64 456Q66 466 54 466L12 466Q6 466 8 456Z" fill="${look.shoe}"/>
   <rect x="-10" y="204" width="28" height="34" fill="${C.skin}"/>
   ${armWithSleeve(arms.far, shirt)}
   <path d="M-46 232C-20 224 18 224 44 234L52 362L-56 362Z" fill="${shirt}"/>
@@ -475,6 +733,16 @@ const FACE = {
   4: { brows: "focused", eye: { pupil: 7, look: [2, 5] }, mouth: "tongue" },
   5: { brows: "confident", eye: { pupil: 6.5, look: [2, 1], halfLid: true }, mouth: "smirk" },
   6: { brows: "happy", eye: { pupil: 7.5, look: [0, 0] }, mouth: "grin" },
+  [ONBOARD_LEVEL]: { brows: "raised", eye: { pupil: 7, look: [-6, 5] }, mouth: "smile" },
+  [PROPOSE_LEVEL]: { brows: "raised", eye: { pupil: 7, look: [6, -2] }, mouth: "smile", tilt: 4 },
+  [DELEGATE_LEVEL]: { brows: "happy", eye: { pupil: 7, look: [0, 0] }, mouth: "bigSmile" },
+  [READ_SHEET_LEVEL]: { brows: "focused", eye: { pupil: 7, look: [0, 7] }, mouth: "smile" },
+  [WRITE_LEVEL]: { brows: "focused", eye: { pupil: 7, look: [-2, 7] }, mouth: "tongue" },
+  [WAVE_LEVEL]: { brows: "happy", eye: { pupil: 7, look: [0, 0] }, mouth: "bigSmile", tilt: 6 },
+  [CHATTY_LEVEL]: { brows: "raised", eye: { pupil: 7, look: [-3, 0] }, mouth: "talk", tilt: -4 },
+  [OVERDO_LEVEL]: { brows: "happy", eye: { pupil: 7.5, look: [-2, 0] }, mouth: "grin", tilt: -6 },
+  [OWN_WORDS_LEVEL]: { brows: "confident", eye: { pupil: 6.5, look: [-2, 1], halfLid: true }, mouth: "smirk", tilt: 6 },
+  [PLEASER_LEVEL]: { brows: "happy", eye: { pupil: 7.5, look: [0, 0] }, mouth: "grin", tilt: 8 },
 };
 
 const HEAD_VIEW = {
@@ -588,6 +856,36 @@ const HAIR =
 const HAIR_UNDER_CAP =
   "M-82 4C-86 -16 -88 -28 -94 -40L-78 -42C-74 -54 -66 -60 -56 -62L56 -62C66 -60 74 -54 78 -42L94 -40C88 -28 86 -16 82 4C76 -16 62 -32 42 -38C22 -28 -6 -30 -26 -38C-48 -32 -70 -18 -82 4Z";
 
+// What shows of a colleague's hair beyond the cap, drawn behind the head.
+const hairBehindHead = ({ hairStyle, hair }) => {
+  switch (hairStyle) {
+    case "long":
+      return (
+        `<path d="M-72 -50C-106 -14 -108 62 -98 112L-60 112C-68 70 -68 20 -62 -10Z" fill="${hair}"/>` +
+        `<path d="M72 -50C106 -14 108 62 98 112L60 112C68 70 68 20 62 -10Z" fill="${hair}"/>`
+      );
+    // On the left: the waving arm is on the right.
+    case "ponytail":
+      return (
+        `<path d="M-56 -54C-112 -64 -134 -2 -120 60C-114 88 -100 106 -90 100C-106 66 -104 16 -66 -10Z" fill="${hair}"/>` +
+        `<circle cx="-74" cy="-46" r="8" fill="${C.remoteButton}" stroke-width="4"/>`
+      );
+    case "curls":
+      return [-34, -8, 20]
+        .flatMap((y, i) => [-1, 1].map((side) => `<circle cx="${side * (90 + i * 3)}" cy="${y}" r="19" fill="${hair}"/>`))
+        .join("");
+    default:
+      return "";
+  }
+};
+
+// Two lashes on the outer corner of each eye.
+const lashes = ({ x, rx }, isLeftEye) => {
+  const side = isLeftEye ? -1 : 1;
+  const corner = x + side * (rx - 3);
+  return `M${corner} ${EYE_Y - 13}l${side * 8} -6M${corner - side * 6} ${EYE_Y - 16}l${side * 5} -8`;
+};
+
 // The shutter edge sits inside the skull, so the head is drawn over it.
 const floppy = (isBeingInserted) => `
   <g transform="translate(-96 -36) rotate(20) scale(1.25)">
@@ -601,25 +899,26 @@ const floppy = (isBeingInserted) => `
     <circle cx="-3" cy="-6" r="3.5" fill="${C.floppy}" stroke-width="2.5"/>
   </g>`;
 
-const head = (level, face = FACE[level]) => {
+const head = (level, face = FACE[level], look = MAIN_LOOK) => {
   const viewName = isReading(level) ? "threeQuarter" : "front";
   const view = HEAD_VIEW[viewName];
   const [leftEye, rightEye] = view.eyes;
   const lensR = (e) => (e.rx < 15 ? 19 : 22);
-  return `
-<g transform="${viewName === "front" ? `translate(0 144) rotate(${face.tilt ?? 0})` : view.transform}">
-  ${level >= 3 ? floppy(level === 3) : ""}
-  ${view.ears.map((x) => `<circle cx="${x}" cy="6" r="15" fill="${C.skin}"/>`).join("")}
-  <ellipse cx="0" cy="0" rx="80" ry="74" fill="${C.skin}"/>
-  <path d="${level >= 6 ? HAIR_UNDER_CAP : HAIR}" fill="${C.hair}"/>
-  ${view.blush.map((x) => `<ellipse cx="${x}" cy="36" rx="11" ry="7" fill="${C.blush}" opacity=".6" stroke="none"/>`).join("")}
-  <path d="${browPath(face.brows, leftEye.x, true)}${browPath(face.brows, rightEye.x, false)}" fill="none" stroke-width="6"/>
-  ${eye(leftEye, face.eye)}${eye(rightEye, face.eye)}
-  <path d="${view.nose}" fill="none" stroke-width="4"/>
-  ${mouth(face.mouth, view.mouthX)}
+  const glasses = `
   <circle cx="${leftEye.x}" cy="${EYE_Y + 1}" r="${lensR(leftEye)}" fill="${C.paper}" fill-opacity=".18" stroke-width="5"/>
   <circle cx="${rightEye.x}" cy="${EYE_Y + 1}" r="${lensR(rightEye)}" fill="${C.paper}" fill-opacity=".18" stroke-width="5"/>
-  <path d="M${leftEye.x + lensR(leftEye)} 6Q${(leftEye.x + rightEye.x) / 2} 0 ${rightEye.x - lensR(rightEye)} 6${view.temples}" fill="none" stroke-width="5"/>
+  <path d="M${leftEye.x + lensR(leftEye)} 6Q${(leftEye.x + rightEye.x) / 2} 0 ${rightEye.x - lensR(rightEye)} 6${view.temples}" fill="none" stroke-width="5"/>`;
+  return `
+<g transform="${viewName === "front" ? `translate(0 144) rotate(${face.tilt ?? 0})` : view.transform}">
+  ${hairBehindHead(look)}${level >= 3 ? floppy(level === 3) : ""}
+  ${view.ears.map((x) => `<circle cx="${x}" cy="6" r="15" fill="${C.skin}"/>`).join("")}
+  <ellipse cx="0" cy="0" rx="80" ry="74" fill="${C.skin}"/>
+  <path d="${level >= 6 ? HAIR_UNDER_CAP : HAIR}" fill="${look.hair}"/>
+  ${view.blush.map((x) => `<ellipse cx="${x}" cy="36" rx="11" ry="7" fill="${C.blush}" opacity=".6" stroke="none"/>`).join("")}
+  <path d="${browPath(face.brows, leftEye.x, true)}${browPath(face.brows, rightEye.x, false)}" fill="none" stroke-width="6"/>
+  ${eye(leftEye, face.eye)}${eye(rightEye, face.eye)}${look.hasLashes ? `<path d="${lashes(leftEye, true)}${lashes(rightEye, false)}" fill="none" stroke-width="4"/>` : ""}
+  <path d="${view.nose}" fill="none" stroke-width="4"/>
+  ${mouth(face.mouth, view.mouthX)}${look.hasGlasses ? glasses : ""}
   ${level >= 6 ? cap() : ""}
 </g>`;
 };
@@ -643,9 +942,15 @@ const cap = () => `
 
 // --- Assembly ----------------------------------------------------------------
 
-const body = (level) => {
+const body = (level, look) => {
   if (isHeadOnly(level)) return "";
-  return isReading(level) ? readingBody(level) : frontBody(level);
+  return isReading(level) ? readingBody(level, look) : frontBody(level, look);
+};
+
+const EXTRAS = {
+  [CHATTY_LEVEL]: longSpeech,
+  [OWN_WORDS_LEVEL]: madeUpWord,
+  [PLEASER_LEVEL]: () => heart(-138, 120, 12) + heart(128, 84, 10) + heart(150, 140, 8),
 };
 
 // Hands that touch the head are drawn after it.
@@ -659,14 +964,16 @@ const overHeadHands = (level) => {
 };
 
 // A problem pose keeps the level's equipment but swaps the face and adds its extras.
-const character = (level, problem) => `
+// Skin is the only use of C.skin, so a colleague's skin tone is a plain substitution.
+const character = (level, problem, look = MAIN_LOOK) =>
+  `
 <g transform="translate(215 0)" stroke="${C.ink}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-  ${level === OVERWHELMED_LEVEL ? flyingRecipes() : ""}${level === RAG_LEVEL ? documentStack() : ""}${body(level)}
-  ${head(level, problem?.face)}
+  ${level === OVERWHELMED_LEVEL || level === ONBOARD_OVERWHELMED_LEVEL ? flyingRecipes() : ""}${level === RAG_LEVEL ? documentStack() : ""}${level === ONBOARD_LEVEL ? documentStack(-100, 334, false) : ""}${body(level, look)}
+  ${head(level, problem?.face, look)}
   ${overHeadHands(level)}${level === PENSIVE_LEVEL ? thoughtDots() : ""}
   ${isHeadOnly(level) ? speechBubble() : ""}
-  ${level >= 6 ? sparkle(-128, 196, 12) + sparkle(112, 52, 16) + sparkle(130, 98, 9) : ""}${problem ? problem.extras() : ""}
-</g>`;
+  ${level === 6 ? sparkle(-128, 196, 12) + sparkle(112, 52, 16) + sparkle(130, 98, 9) : ""}${problem ? problem.extras() : ""}${EXTRAS[level]?.() ?? ""}
+</g>`.replaceAll(C.skin, look.skin);
 
 const W = 400;
 const H = 500;
@@ -681,12 +988,36 @@ ${character(level, problem)}
   writeFileSync(join(outDir, file), svg);
 };
 
+// Several colleagues side by side, each drawn in its own W×H box.
+const writeSceneSvg = ({ file, label, desc, width, figures }) => {
+  const drawnFigures = figures
+    .map(({ level, look, x, y, scale }) => `<g transform="translate(${x} ${y}) scale(${scale})">${character(level, undefined, look)}</g>`)
+    .join("\n");
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${H}" viewBox="0 0 ${width} ${H}" role="img">
+<title>Les collègues IA — ${label}</title>
+<desc>${desc}</desc>
+${drawnFigures}
+</svg>
+`;
+  writeFileSync(join(outDir, file), svg);
+};
+
 writeCharacterSvg(HELLO, HELLO_LEVEL);
 writeCharacterSvg(PENSIVE, PENSIVE_LEVEL);
 writeCharacterSvg(OVERWHELMED, OVERWHELMED_LEVEL);
 writeCharacterSvg(RAG, RAG_LEVEL);
 writeCharacterSvg(PILOT, PILOT_LEVEL);
 writeCharacterSvg(COOK, COOK_LEVEL);
+writeCharacterSvg(ONBOARD, ONBOARD_LEVEL);
+writeCharacterSvg(PROPOSE, PROPOSE_LEVEL);
+writeCharacterSvg(WRITE, WRITE_LEVEL);
+writeCharacterSvg(SESSION, WAVE_LEVEL);
+writeCharacterSvg(CHATTY, CHATTY_LEVEL);
+writeCharacterSvg(OVERDO, OVERDO_LEVEL);
+writeCharacterSvg(OWN_WORDS, OWN_WORDS_LEVEL);
+writeCharacterSvg(PLEASER, PLEASER_LEVEL);
+writeSceneSvg(SUBAGENTS);
+writeSceneSvg(TEAM_HELLO);
 PROBLEM_POSES.forEach((pose) => writeCharacterSvg(pose, pose.level, pose));
 LEVELS.forEach((level, i) => writeCharacterSvg(level, i + 1));
 
