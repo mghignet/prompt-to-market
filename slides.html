@@ -88,7 +88,6 @@
   .card.good { box-shadow: inset 8px 0 0 var(--mgh-yellow); padding-left: 32px; }
   .card.warn { background: #fff; box-shadow: inset 8px 0 0 var(--mgh-red); padding-left: 32px; }
   .card h3 { font-size: 23px; line-height: 1.2; margin-bottom: 8px; }
-  .card .tag { display: inline-block; margin-top: 10px; font-size: 16px; font-weight: 700; padding: 3px 12px; border-radius: 999px; background: var(--mgh-red); color: var(--mgh-ink); }
 
   .grid { display: grid; gap: 20px; align-content: start; }
   .cols-2 { grid-template-columns: 1fr 1fr; }
@@ -103,27 +102,29 @@
   .stack { display: flex; flex-direction: column; gap: 14px; }
 
   /* Pile de couches du prompt : la première couche du DOM est en bas. */
-  .layers { display: flex; flex-direction: column-reverse; gap: 10px; width: 640px; }
+  .layers { display: flex; flex-direction: column-reverse; gap: 10px; width: 520px; }
   .layer { padding: 16px 22px 16px 30px; border-radius: 12px; font-size: 21px; font-weight: 600; background: #fff; border: 1.5px solid var(--mgh-line); box-shadow: inset 8px 0 0 var(--mgh-yellow); display: flex; justify-content: space-between; align-items: baseline; }
   .layer small { font-size: 16px; font-weight: 400; color: var(--mgh-text-muted); }
   .layer.base { background: var(--mgh-tint); box-shadow: none; padding-left: 22px; }
   .layer.top { background: var(--mgh-navy); border-color: var(--mgh-navy); color: #fff; }
   .layer.top small { color: #cfd6f5; }
 
-  .row { display: grid; grid-template-columns: 290px 1fr; gap: 24px; align-items: center; }
-  .row .name { font-size: 21px; font-weight: 700; }
-
   .chips { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
   .chips-label { font-size: 16px; font-weight: 600; color: var(--mgh-text-muted); margin-right: 4px; }
   .chip { font-size: 16px; font-weight: 600; padding: 4px 14px; border-radius: 999px; background: #fff; border: 1.5px solid var(--mgh-navy); color: var(--mgh-navy); }
+  /* Un mot qui n'est pas celui de l'équipe. */
+  .chip.off { border-color: var(--mgh-red); color: var(--mgh-red); text-decoration: line-through; }
 
-  /* Numéros : pastille jaune. */
-  .agenda .num, .sevens .num { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; background: var(--mgh-yellow); color: var(--mgh-ink); font-size: 20px; font-weight: 700; }
-
-  .agenda { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-  .agenda li { display: grid; grid-template-columns: 52px 320px 1fr; align-items: baseline; font-size: 21px; padding: 8px 0; border-bottom: 1.5px solid var(--mgh-line); }
-  .agenda .name { font-weight: 700; }
-  .agenda .msg { color: var(--mgh-text-muted); }
+  /* Les tiroirs de la présentation : une commode bleue, chaque tiroir s'ouvre au clic et dit ce qu'il te laisse. */
+  .drawers { list-style: none; display: flex; flex-direction: column; gap: 12px; width: 960px; padding: 14px; border-radius: 18px; background: var(--mgh-navy); }
+  .drawer { display: grid; grid-template-columns: 52px 210px 1fr 30px; align-items: center; gap: 16px; padding: 18px 24px; border-radius: 12px; background: #fff; font-size: 21px; transition: transform .35s ease, box-shadow .35s ease; }
+  .drawers .step { opacity: 1; transform: none; }
+  .drawer:is(.shown, .open) { transform: translateX(56px); box-shadow: -10px 10px 0 rgba(15, 28, 84, .35); }
+  .drawer .num { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; background: var(--mgh-yellow); font-size: 20px; font-weight: 700; }
+  .drawer .name { font-weight: 700; }
+  .drawer .gain { color: var(--mgh-text-muted); opacity: 0; transition: opacity .3s ease .15s; }
+  .drawer:is(.shown, .open) .gain { opacity: 1; }
+  .drawer .knob { justify-self: end; width: 22px; height: 22px; border-radius: 50%; background: var(--mgh-yellow); border: 3px solid var(--mgh-ink); }
 
   .seq { display: flex; flex-direction: column; gap: 10px; font-size: 20px; }
   .seq div + div::before { content: "↓"; display: block; color: var(--mgh-text-muted); font-size: 24px; margin-bottom: 4px; }
@@ -132,8 +133,6 @@
   /* Une phrase seule au centre de la slide : l'orateur la porte, rien ne la distrait. */
   .slide.statement { justify-content: center; gap: 40px; }
   .statement .big { font-size: 46px; max-width: 1040px; }
-  .sevens { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 22px; }
-  .sevens li { display: grid; grid-template-columns: 44px 1fr; align-items: baseline; padding: 7px 0; border-bottom: 1.5px solid var(--mgh-line); }
 
   /* Slide avec la mascotte à gauche et le texte à droite ; « hero » : la mascotte occupe toute la hauteur. */
   .slide.with-mascot.active { display: grid; grid-template-columns: 384px 1fr; gap: 56px; align-items: center; }
@@ -210,11 +209,97 @@
   #notes-text p + p { margin-top: 12px; }
   #notes-text .empty { color: var(--mgh-text-muted); }
 
-  /* Anciennes slides gardées tant que leur contenu n'est pas repris dans la nouvelle version. */
-  .slide.legacy::before { content: "À reprendre"; position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); font-size: 14px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--mgh-red); border: 1.5px dashed var(--mgh-red); border-radius: 999px; padding: 3px 14px; }
+  .prompt-stack { display: grid; grid-template-columns: 520px 1fr; gap: 32px; align-items: center; }
+  /* Fichiers et arborescences : du texte brut, lu tel quel. */
+  .files { font-family: var(--mono); font-size: 17px; line-height: 1.6; white-space: pre; text-align: left; background: var(--mgh-tint); border-radius: 12px; padding: 12px 20px; }
+  .files .hint-text { color: var(--mgh-text-muted); }
+  /* La fenêtre de contexte comme un bureau qui se remplit ; le repère marque où la qualité commence à baisser. */
+  .context-meter { position: relative; height: 28px; border-radius: 14px; margin: 26px 0 4px; background: linear-gradient(to right, var(--mgh-yellow) 0 25%, rgba(255, 45, 45, .45) 25% 80%, var(--mgh-line) 80%); }
+  .meter-mark { position: absolute; left: 25%; top: -24px; bottom: -6px; border-left: 2.5px solid var(--mgh-ink); padding-left: 8px; font-size: 14px; font-weight: 600; }
+  .meter-legend { display: flex; justify-content: space-between; font-size: 15px; color: var(--mgh-text-muted); }
+
+  /* Plusieurs collègues dans une même scène, à gauche du texte. */
+  .slide.with-scene.active { display: grid; grid-template-columns: 500px 1fr; gap: 40px; align-items: center; }
+  .scene-art { width: 500px; height: 250px; }
+  .review-steps { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .review-steps .card { padding-top: 12px; padding-bottom: 12px; }
+  .loop-note { font-size: 19px; font-weight: 700; color: var(--mgh-navy); padding-left: 8px; }
+
+  /* Partie 2, la mini-carte du cycle, comme l'inventaire de la partie 1 : l'étape en cours en jaune, la flèche de retour en dessous. */
+  #cycle { position: absolute; top: 24px; right: 72px; padding-bottom: 20px; }
+  #cycle .steps { display: flex; list-style: none; padding: 0; }
+  #cycle.hidden { visibility: hidden; }
+  #cycle li { position: relative; width: 82px; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; color: var(--mgh-text-muted); }
+  #cycle li + li::before { content: ""; position: absolute; top: 10px; right: 50%; width: 100%; height: 2px; background: var(--mgh-line); z-index: -1; }
+  #cycle .dot { width: 22px; height: 22px; border-radius: 50%; border: 2px dashed var(--mgh-line); background: #fff; }
+  #cycle li.done { color: var(--mgh-navy); }
+  #cycle li.done .dot { border: 2px solid var(--mgh-navy); background: var(--mgh-navy); }
+  #cycle li.current { color: var(--mgh-ink); }
+  #cycle li.current .dot { border: 2px solid var(--mgh-yellow); background: var(--mgh-yellow); box-shadow: 0 0 0 5px rgba(255, 203, 0, .35); }
+  #cycle .loop { position: absolute; left: 41px; right: 41px; bottom: 2px; height: 14px; border: 2px solid rgba(20, 36, 107, .3); border-top: none; border-radius: 0 0 12px 12px; }
+  #cycle .loop::before { content: ""; position: absolute; left: -7px; top: -9px; border: 6px solid transparent; border-top: none; border-bottom: 9px solid rgba(20, 36, 107, .3); }
+  #cycle.looping .loop { border-color: var(--mgh-yellow); border-width: 3px; }
+  #cycle.looping .loop::before { border-bottom-color: var(--mgh-yellow); }
+
+  /* Le cycle en grand : sept étapes en anneau autour de la mascotte ; l'arc jaune ramène à une session neuve. */
+  .ring { position: relative; width: 1000px; height: 400px; margin: 0 auto; }
+  .ring svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .ring-path { fill: none; stroke: var(--mgh-navy); stroke-width: 3; stroke-dasharray: 2 10; stroke-linecap: round; }
+  .ring-loop { fill: none; stroke: var(--mgh-yellow); stroke-width: 8; stroke-linecap: round; }
+  .ring-arrow { fill: var(--mgh-navy); }
+  .ring-mascot { position: absolute; left: 50%; top: 50%; width: 152px; height: 190px; transform: translate(-50%, -50%); }
+  .ring-steps { list-style: none; padding: 0; }
+  .ring-steps li, .ring-loop-label { position: absolute; left: var(--x); top: var(--y); transform: translate(-50%, -50%); white-space: nowrap; }
+  .ring-steps li { display: flex; align-items: center; gap: 8px; padding: 5px 14px 5px 5px; border-radius: 999px; border: 2px solid var(--mgh-navy); background: #fff; font-size: 17px; font-weight: 600; }
+  .ring-steps .n { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--mgh-yellow); font-size: 14px; font-weight: 700; }
+  .ring.complete .ring-steps li { background: var(--mgh-navy); color: #fff; }
+  .ring-loop-label { padding: 3px 12px; border-radius: 999px; background: var(--mgh-yellow); font-size: 15px; font-weight: 700; }
+
+  /* Une pull request, dessinée simplement : le fichier modifié, ton commentaire, sa réponse. */
+  .pr { border: 1.5px solid var(--mgh-line); border-radius: 12px; overflow: hidden; background: #fff; font-size: 16px; }
+  .pr-head { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--mgh-tint); border-bottom: 1.5px solid var(--mgh-line); font-weight: 700; }
+  .pr-head img { width: 22px; height: 22px; }
+  .pr-state { margin-left: auto; padding: 2px 10px; border-radius: 999px; background: var(--mgh-navy); color: #fff; font-size: 12px; }
+  .pr-file { padding: 6px 14px; border-bottom: 1.5px solid var(--mgh-line); font-family: var(--mono); font-size: 14px; color: var(--mgh-text-muted); }
+  .pr-diff { padding: 6px 0; font-family: var(--mono); font-size: 14px; line-height: 1.7; }
+  .pr-diff .add { padding: 0 14px; background: #e3f5ea; }
+  .pr-comment { margin: 10px 14px; padding: 8px 12px; border: 1.5px solid var(--mgh-line); border-radius: 10px; line-height: 1.4; }
+  .pr-comment.you { border-color: var(--mgh-navy); }
+  .pr-comment .who { display: block; font-size: 13px; font-weight: 700; color: var(--mgh-text-muted); }
+
+  /* Partie 3 : tes deux fichiers de règles, en avant dans la pile. */
+  .layer.highlight { background: var(--mgh-yellow); border-color: var(--mgh-yellow); box-shadow: none; padding-left: 22px; }
+  .layer.highlight small { color: var(--mgh-ink); }
+  /* Un échange façon messagerie : toi à droite, lui à gauche. */
+  .exchange { display: flex; flex-direction: column; gap: 10px; font-size: 18px; line-height: 1.45; }
+  .exchange p { max-width: 88%; padding: 10px 16px; border-radius: 16px; }
+  .exchange .ask { align-self: flex-end; background: var(--mgh-navy); color: #fff; border-bottom-right-radius: 4px; }
+  .exchange .reply { align-self: flex-start; background: var(--mgh-tint); border: 1.5px solid var(--mgh-line); border-bottom-left-radius: 4px; }
+  /* La phrase à lui écrire, telle quelle, et le fichier où elle s'écrit. */
+  .rule { display: block; margin-top: 6px; font-family: var(--mono); font-size: 18px; }
+  .where { display: block; width: fit-content; margin-top: 10px; padding: 2px 12px; border-radius: 999px; border: 1.5px solid var(--mgh-navy); background: #fff; color: var(--mgh-navy); font-size: 15px; font-weight: 700; }
+  .unlock .files { margin-top: 6px; background: #fff; }
+  /* Ses réglages, comme ceux d'un personnage de jeu : au clic, chaque curseur glisse de son défaut vers ta façon. */
+  .tuning { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 22px; margin-top: 16px; }
+  .tuning li { display: grid; grid-template-columns: 260px 1fr 260px; align-items: center; gap: 24px; font-size: 22px; }
+  .tuning .step { opacity: 1; transform: none; }
+  .tuning .from { text-align: right; color: var(--mgh-text-muted); }
+  .tuning .to { font-weight: 700; color: var(--mgh-text-muted); transition: color .3s; }
+  .tuning .shown .to { color: var(--mgh-ink); }
+  .tuning .track { position: relative; height: 10px; border-radius: 5px; background: var(--mgh-line); }
+  .tuning .track::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 8%; border-radius: 5px; background: var(--mgh-yellow); transition: width .6s ease; }
+  .tuning .knob { position: absolute; top: 50%; left: 8%; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: #fff; border: 3px solid var(--mgh-ink); transition: left .6s ease, background .3s; }
+  .tuning .shown .track::before { width: 92%; }
+  .tuning .shown .knob { left: 92%; background: var(--mgh-yellow); }
+
+  /* Dernière slide : toute l'équipe dit bonjour, comme lui au début. */
+  .slide.finale { justify-content: center; align-items: center; text-align: center; gap: 22px; padding-top: 40px; }
+  .finale .team { width: 820px; height: 315px; }
+  .finale .grid { width: 1000px; text-align: left; }
 
   @media (prefers-reduced-motion: reduce) {
     #inventory *, #inventory .slots li { animation: none !important; transition: none; }
+    .drawer, .drawer .gain, .tuning .knob, .tuning .track::before, .tuning .to { transition: none; }
     #inventory.full .sparkle { opacity: 1; }
     .slide.active { animation: none; }
     .step { transition: none; transform: none; }
@@ -235,6 +320,10 @@
     <span class="sparkle" style="--x:54px;--y:256px;--d:1.3s" aria-hidden="true">✦</span>
     <span class="sparkle" style="--x:18px;--y:-20px;--d:.6s" aria-hidden="true">✦</span>
     <span class="sparkle" style="--x:20px;--y:286px;--d:.9s" aria-hidden="true">✦</span>
+  </div>
+  <div id="cycle" aria-label="Cycle d'itération">
+    <ol class="steps"></ol>
+    <span class="loop" aria-hidden="true"></span>
   </div>
 
   <!-- Ouverture -->
@@ -296,6 +385,22 @@
       <p>Il est brillant, mais il arrive les mains vides et il ne connaît rien de nous.</p>
       <p>Il faut l'équiper, puis l'onboarder. L'équipement lui sert dans tous les projets de l'entreprise ; l'onboarding lui fait connaître ton projet.</p>
       <p>Et comme tout collègue, il a ses traits de personnalité. Pour en tirer le meilleur, il faut les connaître : chacun vient avec sa parade.</p>
+    </aside>
+  </section>
+
+  <section class="slide" aria-label="Une présentation à tiroirs">
+    <h2>Une présentation à tiroirs</h2>
+    <p class="lead">Chaque tiroir te laisse quelque chose. <strong>Tu peux t'arrêter après chacun.</strong></p>
+    <ol class="drawers">
+      <li class="drawer step"><span class="num">1</span><span class="name">L'équiper</span><span class="gain">Tu as les bons outils, et tu sais ce que chacun permet.</span><span class="knob"></span></li>
+      <li class="drawer step"><span class="num">2</span><span class="name">L'onboarder</span><span class="gain">Tu travailles avec lui, cycle après cycle.</span><span class="knob"></span></li>
+      <li class="drawer step"><span class="num">3</span><span class="name">Ses traits</span><span class="gain">Tu corriges ses travers une fois pour toutes.</span><span class="knob"></span></li>
+    </ol>
+    <aside class="notes">
+      <p>C'est une présentation à tiroirs. Chaque tiroir te laisse quelque chose, et tu peux t'arrêter après n'importe lequel.</p>
+      <p>Premier tiroir, l'équiper : tu repars avec les bons outils, et tu sais ce que chacun permet.</p>
+      <p>Deuxième tiroir, l'onboarder : tu sais travailler avec lui sur ta discovery, cycle après cycle. C'est là que la promesse est tenue.</p>
+      <p>Troisième tiroir, ses traits : tu vas plus loin, tu corriges ses travers une fois pour toutes, et tu le règles à ta façon.</p>
     </aside>
   </section>
 
@@ -474,6 +579,7 @@
       <p>Une petite évolution du guide : un vrai manuel, le framework.</p>
       <p>Des skills qui s'enchaînent, avec des étapes et des rôles, du besoin jusqu'à la review. Le framework contient les skills : la recette lui sert de marque-page.</p>
       <p>Tu peux maintenant dérouler toute une démarche avec lui, de l'idée à la livraison, étape par étape.</p>
+      <p>Deux précautions. Un framework est un cadre, pas une obligation : BMAD, par exemple, est lourd pour de la discovery, d'autres sont plus légers. Et appelle le skill par son nom : sinon, il improvise sans s'en servir.</p>
     </aside>
   </section>
 
@@ -495,7 +601,7 @@
     </div>
     <aside class="notes">
       <p>Hop : rends-le corporate avec la surcouche de ton entreprise. C'est le SDLC d'entreprise, qui surcharge le framework.</p>
-      <p>La surcouche maison : ses conventions, son vocabulaire, ses skills. On l'installe dans le projet dès la première PR.</p>
+      <p>La surcouche maison : ses conventions, son vocabulaire, ses skills. On l'installe dans chaque projet, dès le départ.</p>
       <p>Tu peux maintenant livrer un travail que l'équipe reconnaît comme le sien : nos templates, nos règles, nos mots.</p>
     </aside>
   </section>
@@ -517,296 +623,512 @@
   <section class="slide with-mascot hero" data-section="1" data-gear="5" aria-label="Il faut l'onboarder">
     <img class="mascot" src="assets/mascot/06-sdlc.svg" alt="Le collègue en tenue de l'entreprise, casquette sur la tête, lève le pouce.">
     <div class="stack">
-      <p class="big">Il connaît l'entreprise.</p>
-      <p class="big">Pas encore <span class="warn-text">ton projet</span>.</p>
-      <p class="big">Il faut <span class="good-text">l'onboarder</span>.</p>
+      <p class="big">Tu peux démarrer <span class="good-text">n'importe quel projet</span>.</p>
+      <p class="big">Il ne connaît pas encore <span class="warn-text">le tien</span>.</p>
+      <p class="big">Onboarde-le <span class="good-text">en te mettant au travail</span> avec lui.</p>
     </div>
     <aside class="notes">
-      <p>Le voilà équipé : c'est ton collègue. Il connaît l'environnement de l'entreprise, ses règles et son vocabulaire.</p>
-      <p>Mais il ne connaît pas encore ton projet. Il faut l'onboarder.</p>
+      <p>Premier tiroir refermé. Le voilà équipé : il connaît l'environnement de l'entreprise, ses règles et son vocabulaire. Si tu t'arrêtes ici, tu as les bons outils, et tu sais ce que chacun permet : tu peux démarrer n'importe quel projet avec lui.</p>
+      <p>Mais il ne connaît pas encore le tien. Il faut l'onboarder, et le plus simple, c'est de se mettre au travail avec lui.</p>
     </aside>
   </section>
 
-  <section class="slide legacy" aria-label="Le fil rouge">
-    <h2>Une image pour toute la présentation</h2>
-    <p class="lead">Un nouveau stagiaire, chaque matin.</p>
-    <div class="grid cols-3">
-      <div class="card good step">
-        <h3>Brillant</h3>
-        Raisonne vite, comprend à demi-mot, pose de bonnes questions.
-      </div>
-      <div class="card warn step">
-        <h3>Amnésique</h3>
-        Chaque session repart de zéro. Rien n'est retenu d'hier.
-      </div>
-      <div class="card step">
-        <h3>Littéral</h3>
-        Il fait ce qu'on lui dit. Il faut préciser ce qu'on attend en sortie.
-      </div>
+  <!-- 2. L'onboarder : le cycle d'itération. data-cycle = étape en cours dans la mini-carte du cycle ; « loop » = la flèche de retour. -->
+  <section class="slide" data-section="2" aria-label="Le cycle d'itération">
+    <h2>Le cycle d'itération</h2>
+    <p class="lead">Une session, un objectif, une PR. <strong>Puis on recommence.</strong></p>
+    <div class="ring">
+      <svg viewBox="0 0 1000 400" aria-hidden="true">
+        <ellipse class="ring-path" cx="500" cy="200" rx="300" ry="175"/>
+        <path class="ring-loop" d="M265 91A300 175 0 0 1 500 25"/>
+        <path class="ring-arrow" d="M-9 -8L9 0L-9 8Z" transform="translate(630 42) rotate(16)"/>
+        <path class="ring-arrow" d="M-9 -8L9 0L-9 8Z" transform="translate(792 161) rotate(69)"/>
+        <path class="ring-arrow" d="M-9 -8L9 0L-9 8Z" transform="translate(735 309) rotate(144)"/>
+        <path class="ring-arrow" d="M-9 -8L9 0L-9 8Z" transform="translate(500 375) rotate(180)"/>
+        <path class="ring-arrow" d="M-9 -8L9 0L-9 8Z" transform="translate(265 309) rotate(-144)"/>
+        <path class="ring-arrow" d="M-9 -8L9 0L-9 8Z" transform="translate(208 161) rotate(-69)"/>
+        <path class="ring-arrow" d="M-9 -8L9 0L-9 8Z" transform="translate(370 42) rotate(-16)"/>
+      </svg>
+      <img class="ring-mascot" src="assets/mascot/08-session.svg" alt="Le collègue en tenue de l'entreprise nous fait coucou de la main.">
+      <ol class="ring-steps">
+        <li style="--x:500px;--y:25px"><span class="n">1</span>Ouvre une session</li>
+        <li style="--x:735px;--y:91px"><span class="n">2</span>Parle-lui de ton sujet</li>
+        <li style="--x:792px;--y:239px"><span class="n">3</span>Revois son plan</li>
+        <li style="--x:630px;--y:358px"><span class="n">4</span>Il exécute le plan</li>
+        <li style="--x:370px;--y:358px"><span class="n">5</span>Commit et PR</li>
+        <li style="--x:208px;--y:239px"><span class="n">6</span>Relis et commente</li>
+        <li style="--x:265px;--y:91px"><span class="n">7</span>Merge</li>
+      </ol>
+      <span class="ring-loop-label" style="--x:250px;--y:36px">↺ Session neuve</span>
     </div>
-    <p class="lead step"><strong>Donc :</strong> on le cadre, on lui fait écrire ce qui compte, on relit son travail et on corrige la cause de ses erreurs.</p>
+    <aside class="notes">
+      <p>Il est équipé. Pour l'onboarder, on ne lui fait pas un cours : on se met au travail avec lui. Et ce travail suit toujours le même cycle.</p>
+      <p>J'ouvre une session. Je lui parle de mon sujet. Il me propose un plan, je le revois avec lui. Il exécute le plan. Je lui demande de commiter et d'ouvrir une PR. Je la relis et je la commente, il prend en compte mes commentaires, autant de fois qu'il faut. Je merge. Et pour le sujet suivant, j'ouvre une session neuve.</p>
+      <p>On va faire le tour une fois, sur un exemple : écrire le brief de la discovery sur la gestion des stocks. En haut à droite, une petite carte te dira où on en est.</p>
+      <p>C'est exactement comme ça que travaillent les devs. C'est ce qui rend le travail relisible, partageable, et ce qui permet de reprendre là où on s'était arrêté.</p>
+    </aside>
   </section>
 
-  <section class="slide legacy" aria-label="Les sept temps">
-    <h2>Sept temps</h2>
-    <ol class="agenda">
-      <li><span class="num">1</span><span class="name">La mécanique</span><span class="msg">Pourquoi l'IA oublie</span></li>
-      <li><span class="num">2</span><span class="name">La mémoire</span><span class="msg">Ce qui n'est pas commité est perdu</span></li>
-      <li><span class="num">3</span><span class="name">Les sessions</span><span class="msg">Un objectif, une PR</span></li>
-      <li><span class="num">4</span><span class="name">La méthode</span><span class="msg">Un cadre, pas une obligation</span></li>
-      <li><span class="num">5</span><span class="name">La connaissance</span><span class="msg">Onboarder le stagiaire</span></li>
-      <li><span class="num">6</span><span class="name">Le cadrage</span><span class="msg">Vocabulaire, langue, format</span></li>
-      <li><span class="num">7</span><span class="name">La relecture</span><span class="msg">Corriger la cause, pas le symptôme</span></li>
-    </ol>
+  <section class="slide with-mascot" data-section="2" data-cycle="1" aria-label="Ouvre une session">
+    <img class="mascot" src="assets/mascot/08-session.svg" alt="Le collègue en tenue de l'entreprise nous fait coucou de la main : une session neuve commence.">
+    <div class="stack">
+      <h2>Ouvre une session</h2>
+      <p class="lead">Une conversation avec lui, dans ton harnais. <strong>Il arrive frais</strong> : il ne sait que ce qui est écrit dans le dépôt.</p>
+      <div class="card good"><strong>Un objectif par session</strong> : écrire le brief, synthétiser les entretiens, rédiger le PRD…</div>
+      <p class="hint">La toute première fois : un dépôt par projet, et la surcouche de l'entreprise s'y installe.</p>
+    </div>
+    <aside class="notes">
+      <p>Première étape : j'ouvre une session. C'est une conversation avec lui, dans le harnais : Claude Code, Codex, Copilot.</p>
+      <p>À chaque session, il arrive frais. Il ne se souvient pas de la conversation d'hier : il ne sait que ce qui est écrit dans le dépôt, et l'équipement de la partie 1.</p>
+      <p>Une session a un seul objectif. Aujourd'hui : écrire le brief de la discovery. Pas « avancer sur la discovery » : un objectif qu'on peut relire et valider.</p>
+      <p>La toute première fois, on crée le dépôt du projet, et la toute première modification y installe la surcouche de l'entreprise, comme on installe un logiciel avant de s'en servir.</p>
+    </aside>
   </section>
 
-  <!-- 1. Mécanique -->
-  <section class="slide legacy" data-section="1" aria-label="LLM, harnais, agent">
-    <h2>LLM, harnais, agent : qui fait quoi ?</h2>
-    <p class="lead">Comprendre pourquoi l'IA oublie explique toutes les autres pratiques.</p>
+  <section class="slide with-mascot" data-section="2" data-cycle="2" aria-label="Parle-lui de ton sujet">
+    <img class="mascot" src="assets/mascot/07-onboard.svg" alt="Le collègue en tenue de l'entreprise regarde avec attention la pile de documents que tu lui donnes.">
+    <div class="stack">
+      <h2>Parle-lui de ton sujet</h2>
+      <p class="lead">Le plus précisément possible : il ne sait rien de ton métier tant que <strong>tu ne le lui donnes pas</strong>, ou ne lui dis pas où chercher.</p>
+      <span class="chips"><span class="chips-label">Par exemple</span><span class="chip">Document de contexte</span><span class="chip">Verbatims d'entretiens</span><span class="chip">Comptes rendus</span><span class="chip">Liens Miro et Drive</span></span>
+      <div class="card"><strong>Parle-lui en vocal</strong> : tu en dis plus, plus vite.</div>
+      <div class="card good step unlock"><span class="unlock-label">Tu peux</span>Lui demander « Par quoi on commence ? » : il connaît déjà le sujet.</div>
+    </div>
+    <aside class="notes">
+      <p>Deuxième étape : je lui parle de mon sujet. C'est là que se fait l'onboarding. Le modèle sait réfléchir, mais il ne sait rien de ton métier : ni tes utilisateurs, ni tes contraintes, ni ce qui a déjà été décidé. Tant que tu ne le lui donnes pas, ou que tu ne lui dis pas où le trouver, il comble avec des généralités.</p>
+      <p>Donne-lui le plus possible : le document de contexte, les verbatims, les comptes rendus, et les liens vers tes sources, le Miro de l'atelier, le dossier Drive. Grâce à son harnais, il sait aller les lire.</p>
+      <p>Astuce : parle-lui en vocal. À l'oral, tu donnes naturellement le contexte, les nuances, ce qui t'inquiète. Tu en dis bien plus qu'en tapant, et plus vite.</p>
+      <p>Les premières fois, ça prend du temps. Ce coût d'onboarding est réel, mais il se rentabilise : une fois écrit dans le dépôt, tu n'auras plus à le redire.</p>
+    </aside>
+  </section>
+
+  <section class="slide with-mascot" data-section="2" data-cycle="2" aria-label="Ce qui fait foi">
+    <img class="mascot" src="assets/mascot/07-onboard-mixed.svg" alt="Le collègue en tenue de l'entreprise lève les yeux, perplexe, un point d'interrogation au-dessus de la tête.">
+    <div class="stack">
+      <h2>Dis-lui ce qui fait foi</h2>
+      <p class="lead">Le cadrage de mars dit A, l'atelier d'octobre dit B : <strong>sans consigne, il cite les deux</strong>.</p>
+      <div class="files">## Fait foi
+- Atelier d'octobre (Miro) : périmètre retenu
+
+## Obsolète
+- Cadrage de mars : remplacé par l'atelier d'octobre</div>
+      <p class="hint">Sinon, un document périmé empoisonne ses réponses : c'est le <em>context poisoning</em>.</p>
+      <div class="card good step unlock"><span class="unlock-label">Tu peux</span>Lui confier toutes tes sources, et lui dire : « Retourne voir, ça a changé. »</div>
+    </div>
+    <aside class="notes">
+      <p>Un piège, à cette étape : tu lui donnes tout, l'ancien comme le nouveau. Le cadrage de mars et l'atelier d'octobre se contredisent, et lui les met au même niveau. Ses réponses mélangent les deux.</p>
+      <p>C'est ce qu'on appelle le context poisoning : un document périmé empoisonne ses réponses.</p>
+      <p>La parade : dis-lui ce qui fait foi. Pour chaque source, quelle est la référence, et ce qui est obsolète. Ça tient dans un fichier, avec les liens vers chaque source.</p>
+      <p>Tu peux alors lui confier toutes tes sources sans crainte. Et comme il a les liens, tu peux lui dire : retourne voir le Miro, ça a changé.</p>
+    </aside>
+  </section>
+
+  <section class="slide with-mascot" data-section="2" data-cycle="3" aria-label="Revois son plan">
+    <img class="mascot" src="assets/mascot/08-propose.svg" alt="Le collègue en tenue de l'entreprise te tend une feuille, l'air confiant : son plan.">
+    <div class="stack">
+      <h2>Demande-lui un plan, et revois-le</h2>
+      <div class="exchange">
+        <p class="ask">Avant d'écrire, propose-moi un plan.</p>
+        <p class="reply">1. Créer brief.md : problème, cible, hypothèses.<br>2. Citer les sources utilisées.<br>3. Lister les questions ouvertes.</p>
+        <p class="ask step">Ajoute ce qui est hors périmètre, et ne touche pas aux synthèses.</p>
+      </div>
+      <div class="card good step">C'est le moment le moins cher pour corriger : <strong>rien n'est encore écrit</strong>.</div>
+    </div>
+    <aside class="notes">
+      <p>Troisième étape : avant d'écrire quoi que ce soit, il me propose un plan. Quels fichiers il va créer ou modifier, et ce qu'il va y mettre. La plupart des harnais ont un mode « plan » pour ça.</p>
+      <p>Je le revois avec lui. Ici, il a oublié le hors périmètre, et j'ai peur qu'il retouche les synthèses d'entretiens : je le lui dis.</p>
+      <p>C'est le moment le moins cher pour corriger : rien n'est encore écrit. Une phrase maintenant t'évite de relire et de faire reprendre trois pages plus tard.</p>
+    </aside>
+  </section>
+
+  <section class="slide with-mascot" data-section="2" data-cycle="4" aria-label="Il exécute le plan">
+    <img class="mascot" src="assets/mascot/08-write.svg" alt="Le collègue en tenue de l'entreprise écrit sur une feuille, crayon en main, concentré.">
+    <div class="stack">
+      <h2>Il exécute le plan</h2>
+      <p class="lead">Il écrit dans des fichiers du dépôt, <strong>avec les skills de ton framework</strong>.</p>
+      <span class="chips"><span class="chips-label">Par exemple</span><span class="chip">Écrire un brief</span><span class="chip">Synthétiser des entretiens</span><span class="chip">Rédiger un PRD</span></span>
+      <div class="card good"><strong>Appelle le skill par son nom</strong> : sinon, il improvise.</div>
+      <p class="hint">Il écrit dans des fichiers, pas dans la conversation : c'est ce qui restera.</p>
+    </div>
+    <aside class="notes">
+      <p>Quatrième étape : il exécute le plan. Selon l'objectif de la session, il écrit le brief, synthétise des entretiens, rédige un PRD.</p>
+      <p>Il s'appuie sur l'équipement de la partie 1 : les skills du framework et de la surcouche de l'entreprise. Appelle le skill par son nom, « utilise le skill d'écriture de brief » : sinon, il improvise sans s'en servir.</p>
+      <p>Et il écrit dans des fichiers du dépôt, pas dans la conversation. La conversation disparaîtra avec la session ; les fichiers restent.</p>
+    </aside>
+  </section>
+
+  <section class="slide" data-section="2" data-cycle="5" aria-label="Commit et PR">
+    <h2>Demande-lui de commiter et d'ouvrir une PR</h2>
+    <p class="lead">Une phrase suffit : <strong>«&nbsp;Commite et ouvre une PR.&nbsp;»</strong></p>
     <div class="flow">
-      <div class="step">
-        <div class="card">
-          <h3>LLM</h3>
-          Du texte en entrée, du texte en sortie.<br>
-          <span class="tag">sans état</span>
+      <div class="step"><div class="card"><h3>Commit</h3>Une sauvegarde datée de son travail, dans le dépôt.</div></div>
+      <div class="step"><span class="arrow">→</span><div class="card"><h3>Pull request</h3>Une proposition de modification, sur GitHub.</div></div>
+      <div class="step"><span class="arrow">→</span><div class="card good"><h3>Toi</h3>Tu la relis avant de l'accepter.</div></div>
+    </div>
+    <div class="card warn step"><strong>Ce qui n'est pas commité est perdu</strong> : la session oublie, le dépôt se souvient.</div>
+    <aside class="notes">
+      <p>Cinquième étape : je lui demande de commiter et d'ouvrir une PR. Une phrase suffit, il s'occupe de la mécanique.</p>
+      <p>Commiter, c'est enregistrer une sauvegarde datée de son travail dans le dépôt. Ouvrir une PR, une pull request, c'est proposer cette modification : elle n'entre pas dans le projet tant que tu ne l'as pas acceptée. Ici, j'utilise GitHub.</p>
+      <p>Et retiens ceci : ce qui n'est pas commité est perdu. Si tu fermes la session avant, tout ce que vous vous êtes dit disparaît.</p>
+    </aside>
+  </section>
+
+  <section class="slide" data-section="2" data-cycle="6" aria-label="Relis et commente">
+    <h2>Relis-la et commente-la sur GitHub</h2>
+    <p class="lead">Comme le travail d'un collègue externe : <strong>tu ne supposes pas que c'est juste</strong>.</p>
+    <div class="grid cols-2">
+      <div class="pr">
+        <div class="pr-head"><img src="assets/logos/github.svg" alt="GitHub">Ajoute le brief de la discovery<span class="pr-state">Ouverte</span></div>
+        <div class="pr-file">brief.md</div>
+        <div class="pr-diff"><div class="add">+ ## Cible</div><div class="add">+ Les magasiniers des magasins intégrés et franchisés.</div></div>
+        <div class="pr-comment you"><span class="who">Toi</span>Les franchisés sont hors périmètre.</div>
+        <div class="pr-comment step"><span class="who">Lui</span>Pris en compte dans le commit suivant.</div>
+      </div>
+      <ol class="review-steps">
+        <li class="card step"><strong>Tu commentes</strong>, ligne par ligne, sur GitHub.</li>
+        <li class="card step">Dans ta session : <strong>«&nbsp;Prends en compte les commentaires de la PR.&nbsp;»</strong></li>
+        <li class="card step">Il corrige : <strong>un nouveau commit</strong>.</li>
+        <li class="loop-note step">↺ Nouvelle relecture, jusqu'à satisfaction.</li>
+      </ol>
+    </div>
+    <aside class="notes">
+      <p>Sixième étape : je vais sur GitHub, et je relis la PR comme le travail d'un collègue externe. Je ne suppose pas que c'est juste.</p>
+      <p>Je commente directement sur les lignes concernées. Ici, il a mis les magasins franchisés dans la cible, alors qu'ils sont hors périmètre.</p>
+      <p>Puis je retourne dans ma session et je lui dis : prends en compte les commentaires de la PR. Il les lit lui-même, il corrige, et il ajoute un nouveau commit à la PR.</p>
+      <p>Je relis à nouveau, autant de fois qu'il faut, jusqu'à être satisfait.</p>
+    </aside>
+  </section>
+
+  <section class="slide with-mascot" data-section="2" data-cycle="7" aria-label="Merge">
+    <img class="mascot" src="assets/mascot/06-sdlc.svg" alt="Le collègue en tenue de l'entreprise, casquette sur la tête, lève le pouce.">
+    <div class="stack">
+      <h2>Satisfait ? Merge</h2>
+      <p class="lead">Tu acceptes la PR : <strong>la modification entre dans le dépôt</strong>.</p>
+      <div class="card good">Le brief est là pour toute l'équipe, et pour sa prochaine session.</div>
+      <div class="card good step unlock"><span class="unlock-label">Tu peux</span>Reprendre trois semaines plus tard : « Où en est-on ? »</div>
+    </div>
+    <aside class="notes">
+      <p>Septième étape : je suis satisfait, je merge. Merger, c'est accepter la PR : la modification entre dans le dépôt.</p>
+      <p>Le brief est maintenant là pour toute l'équipe, et pour sa prochaine session : il le relira.</p>
+      <p>Tu peux reprendre le projet trois semaines plus tard, dans une session neuve, et lui demander : où en est-on ? Qu'est-ce qui reste ouvert ?</p>
+    </aside>
+  </section>
+
+  <section class="slide" data-section="2" data-cycle="loop" aria-label="Puis, une session neuve">
+    <h2>Puis, une session neuve</h2>
+    <p class="lead">Pourquoi ne pas continuer ? Son bureau a une taille fixe : <strong>la fenêtre de contexte</strong>.</p>
+    <div>
+      <div class="context-meter"><span class="meter-mark">repère : ~25 %</span></div>
+      <div class="meter-legend"><span>Session neuve : le dépôt et les fichiers utiles</span><span>Plein : il résume à sa façon</span></div>
+    </div>
+    <div class="grid cols-2">
+      <div class="card warn step"><h3>Il s'emmêle</h3>Le bureau déborde : il résume à sa façon, c'est <strong>la compaction</strong>. Des détails se perdent, il comble en inventant.</div>
+      <div class="card warn step"><h3>Ça coûte</h3>Il relit tout le bureau à chaque réponse : <strong>chaque mot relu se paie</strong>, en tokens.</div>
+    </div>
+    <div class="card good step unlock"><span class="unlock-label">Tu peux</span>Repartir frais : la session neuve relit ce qui est mergé, et rien de plus.</div>
+    <aside class="notes">
+      <p>Le brief est mergé. Pour la suite, je n'enchaîne pas dans la même session : j'en ouvre une neuve. Pourquoi ?</p>
+      <p>Imagine son bureau. Tout ce qu'il a sous les yeux doit y tenir : le prompt, les fichiers qu'il a lus, toute votre conversation. C'est la fenêtre de contexte, et sa taille est fixe.</p>
+      <p>Quand le bureau déborde, il fait de la place : il résume à sa façon ce qui s'est dit. C'est la compaction. Il choisit ce qu'il garde, des détails importants disparaissent, et il comble les trous en inventant. Bien avant de déborder, la qualité baisse déjà : un repère souvent cité est de ne pas dépasser un quart environ. C'est une recommandation, pas une règle.</p>
+      <p>Et ça coûte : à chaque réponse, il relit tout le bureau. Chaque mot relu se paie, en tokens. Une session longue coûte de plus en plus cher à chaque échange.</p>
+      <p>Comme tout est dans le dépôt, la session neuve ne perd rien : elle relit le brief mergé, sur un bureau propre. Le contexte vit dans les fichiers, pas dans la conversation.</p>
+    </aside>
+  </section>
+
+  <section class="slide" data-section="2" aria-label="Cycle après cycle">
+    <h2>Cycle après cycle</h2>
+    <p class="lead">Brief, synthèses, PRD : <strong>ta discovery grandit, une PR à la fois</strong>.</p>
+    <div class="ring complete">
+      <svg viewBox="0 0 1000 400" aria-hidden="true">
+        <ellipse class="ring-path" cx="500" cy="200" rx="300" ry="175"/>
+        <path class="ring-loop" d="M265 91A300 175 0 0 1 500 25"/>
+        <path class="ring-arrow" d="M-9 -8L9 0L-9 8Z" transform="translate(630 42) rotate(16)"/>
+        <path class="ring-arrow" d="M-9 -8L9 0L-9 8Z" transform="translate(792 161) rotate(69)"/>
+        <path class="ring-arrow" d="M-9 -8L9 0L-9 8Z" transform="translate(735 309) rotate(144)"/>
+        <path class="ring-arrow" d="M-9 -8L9 0L-9 8Z" transform="translate(500 375) rotate(180)"/>
+        <path class="ring-arrow" d="M-9 -8L9 0L-9 8Z" transform="translate(265 309) rotate(-144)"/>
+        <path class="ring-arrow" d="M-9 -8L9 0L-9 8Z" transform="translate(208 161) rotate(-69)"/>
+        <path class="ring-arrow" d="M-9 -8L9 0L-9 8Z" transform="translate(370 42) rotate(-16)"/>
+      </svg>
+      <img class="ring-mascot" src="assets/mascot/06-sdlc.svg" alt="Le collègue en tenue de l'entreprise, casquette sur la tête, lève le pouce.">
+      <ol class="ring-steps">
+        <li style="--x:500px;--y:25px"><span class="n">1</span>Ouvre une session</li>
+        <li style="--x:735px;--y:91px"><span class="n">2</span>Parle-lui de ton sujet</li>
+        <li style="--x:792px;--y:239px"><span class="n">3</span>Revois son plan</li>
+        <li style="--x:630px;--y:358px"><span class="n">4</span>Il exécute le plan</li>
+        <li style="--x:370px;--y:358px"><span class="n">5</span>Commit et PR</li>
+        <li style="--x:208px;--y:239px"><span class="n">6</span>Relis et commente</li>
+        <li style="--x:265px;--y:91px"><span class="n">7</span>Merge</li>
+      </ol>
+      <span class="ring-loop-label" style="--x:250px;--y:36px">↺ Session neuve</span>
+    </div>
+    <aside class="notes">
+      <p>Voilà le cycle complet. Une session, un objectif, une PR que tu relis et que tu merges, puis une session neuve. Le brief, puis les synthèses, puis le PRD : ta discovery grandit dans le dépôt, une PR à la fois, et chaque étape a été relue.</p>
+      <p>Deuxième tiroir refermé. Si tu t'arrêtes ici, tu sais travailler avec lui sur ta discovery, cycle après cycle.</p>
+      <p>Pour aller plus loin : cycle après cycle, tu vas croiser ses travers. C'est la troisième partie.</p>
+    </aside>
+  </section>
+
+  <!-- 3. Ses traits : les problèmes que tu vas croiser, corrigés à la cause dans AGENTS.md. Un travers par slide, la parade au clic. -->
+  <section class="slide statement" data-section="3" aria-label="Ses travers">
+    <p class="big">Cycle après cycle, <span class="warn-text">ses travers reviennent</span>.</p>
+    <p class="big">Corrige-les <span class="good-text">une fois pour toutes</span>.</p>
+    <aside class="notes">
+      <p>Le cycle tourne. Mais cycle après cycle, tu vas croiser ses travers : comme tout collègue, il a ses défauts par défaut.</p>
+      <p>Dans cette partie, on les passe en revue, et surtout, on voit comment les corriger une fois pour toutes, au lieu de les corriger à chaque session.</p>
+    </aside>
+  </section>
+
+  <section class="slide with-mascot" data-section="3" aria-label="Il est bavard">
+    <img class="mascot" src="assets/mascot/09-chatty.svg" alt="Le collègue parle, l'index levé, à côté d'une immense bulle remplie de lignes qui n'en finit pas.">
+    <div class="stack">
+      <span class="problem-label">Travers</span>
+      <h2>Il est bavard</h2>
+      <div class="exchange">
+        <p class="ask">Combien d'entretiens parlent de ressaisie ?</p>
+        <p class="reply">Excellente question ! La ressaisie des stocks est un sujet central de ta discovery. Après une analyse attentive des douze entretiens, voici une synthèse détaillée, en trois parties…</p>
+      </div>
+      <div class="card warn step">Tu lui dis « plus court ». Il obéit… <strong>et recommence à la session suivante</strong>.</div>
+    </div>
+    <aside class="notes">
+      <p>Premier travers : il est bavard. Tu lui poses une question fermée, il te répond par trois paragraphes. Il commence par te féliciter pour ta question, reformule ce que tu viens de dire, et la réponse arrive à la fin, si elle arrive.</p>
+      <p>Ce n'est pas un défaut de ton projet : c'est son comportement par défaut. Il a été entraîné à être complet et poli.</p>
+      <p>Alors tu lui dis : plus court. Il obéit. Et à la session suivante, il recommence : il est arrivé frais, il a oublié.</p>
+    </aside>
+  </section>
+
+  <section class="slide" data-section="3" aria-label="Corriger la cause">
+    <h2>Corrige la cause, pas le symptôme</h2>
+    <p class="lead">Écris la règle dans <strong>AGENTS.md</strong> : un fichier qu'il relit au début de chaque session.</p>
+    <div class="grid cols-2">
+      <div class="card warn step">
+        <h3>Tu corriges le symptôme</h3>
+        <div class="seq">
+          <div>« Plus court. »</div>
+          <div>Il obéit.</div>
+          <div><strong>Session suivante : trois paragraphes.</strong></div>
         </div>
       </div>
-      <div class="step">
-        <span class="arrow">→</span>
-        <div class="card">
-          <h3>Harnais</h3>
-          Relance le LLM en boucle : réfléchit, lit des fichiers, appelle des outils.
-          <div class="lead" style="font-size:19px;margin-top:8px">Copilot, Claude Code…</div>
-        </div>
-      </div>
-      <div class="step">
-        <span class="arrow">→</span>
-        <div class="card">
-          <h3>Agent</h3>
-          Une session. Peut déléguer à des sous-agents.
+      <div class="card good step">
+        <h3>Tu corriges la cause</h3>
+        <div class="seq">
+          <div>« Plus court, et retiens-le. »</div>
+          <div>La règle est écrite dans AGENTS.md.</div>
+          <div><strong>Relue à chaque session : l'erreur ne revient plus.</strong></div>
         </div>
       </div>
     </div>
+    <div class="card good step unlock"><span class="unlock-label">Tu peux</span>Relire de moins en moins : chaque erreur ne se corrige qu'une fois.</div>
+    <aside class="notes">
+      <p>C'est un stagiaire brillant, mais amnésique : ce que tu lui dis dans la conversation disparaît avec la session. Si tu corriges le symptôme, il obéit, et la session suivante refait la même erreur.</p>
+      <p>Corrige la cause : demande-lui de corriger, et d'écrire la règle dans AGENTS.md. C'est un fichier de règles qu'il relit au début de chaque session, avant même que tu lui parles. Tu n'as pas besoin de l'écrire toi-même : « retiens-le » suffit, il s'en charge.</p>
+      <p>Au début, tu relis beaucoup. Puis de moins en moins : chaque correction ne se fait qu'une fois.</p>
+      <p>Et si ça dérive malgré tout, ne t'acharne pas dans une session qui s'emmêle : ouvre une session de recadrage, qui relit les règles et repart propre.</p>
+    </aside>
   </section>
 
-  <section class="slide legacy" data-section="2" aria-label="La pile du prompt">
-    <h2>Le prompt est une pile, reconstruite à chaque session</h2>
-    <p class="lead">La réflexion vient du modèle. <strong>La connaissance métier vient de toi.</strong></p>
-    <div style="display:flex;gap:40px;align-items:flex-start">
+  <section class="slide" data-section="3" aria-label="Ton AGENTS.md et celui du projet">
+    <h2>Ton AGENTS.md, et celui du projet</h2>
+    <p class="lead">Deux fichiers de règles, <strong>relus au début de chaque session</strong>.</p>
+    <div class="prompt-stack">
       <div class="layers">
-        <div class="layer base step">Entraînement du modèle <small>pas à moi</small></div>
-        <div class="layer step">Instructions globales <small>mes préférences</small></div>
-        <div class="layer step">agent.md du projet <small>conventions d'équipe</small></div>
-        <div class="layer top step">Ce que je dis maintenant</div>
+        <div class="layer base">Son entraînement <small>le modèle</small></div>
+        <div class="layer">La surcouche de l'entreprise <small>partie 1</small></div>
+        <div class="layer highlight">Ton AGENTS.md <small>toi, partout</small></div>
+        <div class="layer highlight">AGENTS.md du projet <small>l'équipe</small></div>
+        <div class="layer top">Ta demande <small>ce que tu tapes</small></div>
       </div>
-      <div class="card good step" style="flex:1;margin-top:60px">
-        Les deux couches du milieu, c'est <strong>toi qui les écris</strong>. Elles survivent d'une session à l'autre.
-      </div>
-    </div>
-  </section>
-
-  <!-- 2. Mémoire -->
-  <section class="slide legacy" data-section="2" aria-label="La mémoire est le repo">
-    <h2>Ce qui n'est pas commité est perdu</h2>
-    <p class="lead">La session oublie. Le repo se souvient.</p>
-    <div class="flow">
-      <div class="step">
-        <div class="card"><h3>Session 1</h3>On discute, on décide.</div>
-      </div>
-      <div class="step">
-        <span class="arrow">→</span>
-        <div class="card"><h3>PR</h3>On commit ce qui compte.</div>
-      </div>
-      <div class="step">
-        <span class="arrow">→</span>
-        <div class="card good"><h3>Repo</h3><code>agent.md</code> et docs en <code>.md</code></div>
-      </div>
-      <div class="step">
-        <span class="arrow">→</span>
-        <div class="card"><h3>Session 2</h3>Relit le repo, repart de l'état.</div>
+      <div class="stack">
+        <div class="card step"><h3>Ton AGENTS.md</h3>Toi, dans tous tes projets : le ton, le format, «&nbsp;contredis-moi&nbsp;».</div>
+        <div class="card good step"><h3>AGENTS.md du projet</h3>L'équipe, dans le dépôt : l'organisation, le vocabulaire, les sources.</div>
+        <p class="hint step">Une nouvelle règle ? «&nbsp;Retiens-le, au bon endroit.&nbsp;» Il choisit le fichier.</p>
       </div>
     </div>
-    <div class="card warn step">Fermer la session sans commiter : <strong>tout est oublié</strong>.</div>
+    <aside class="notes">
+      <p>Avant de te répondre, il relit une pile : son entraînement, la surcouche de l'entreprise, puis deux fichiers de règles, et enfin ta demande.</p>
+      <p>Ton AGENTS.md à toi te suit dans tous tes projets : comment tu veux qu'il te parle, le ton, le format, la langue. Il reste générique : aucune règle de projet dedans. Selon l'outil, ce fichier personnel porte un autre nom ; l'idée est la même.</p>
+      <p>Le AGENTS.md du projet est dans le dépôt, partagé avec l'équipe et versionné : l'organisation de la discovery, le vocabulaire, les sources.</p>
+      <p>Chaque outil a aussi son nom de fichier de projet : CLAUDE.md pour Claude Code, copilot-instructions.md pour Copilot. On les fait renvoyer vers AGENTS.md, pour n'avoir qu'une seule source de vérité.</p>
+      <p>Une astuce : sépare ce que lit l'humain de ce que lit l'agent. Les consignes pour l'agent n'ont pas à encombrer un document que lit ton équipe.</p>
+      <p>Pour chaque travers qui suit, on verra dans quel fichier va la parade.</p>
+    </aside>
   </section>
 
-  <section class="slide legacy" data-section="2" aria-label="Où écrire quoi">
-    <h2>Où écrire quoi ?</h2>
-    <p class="lead">Une seule source de vérité pour les instructions.</p>
+  <section class="slide with-mascot" data-section="3" aria-label="Il en fait trop">
+    <img class="mascot" src="assets/mascot/09-overdo.svg" alt="Le collègue, ravi, porte une pile vacillante de documents et de classeurs qui monte plus haut que sa tête.">
     <div class="stack">
-      <div class="card row step"><span class="name"><code>agent.md</code> du projet</span><span>Conventions d'équipe, partagées et versionnées.</span></div>
-      <div class="card row step"><span class="name">Instructions globales</span><span>Mes préférences perso. Elles restent génériques : aucune règle de projet.</span></div>
-      <div class="card row step"><span class="name"><code>copilot-instructions</code></span><span>Renvoie vers <code>agent.md</code> : pas de doublon.</span></div>
-    </div>
-    <p class="lead step">Une préférence change ? Demander à l'IA de l'enregistrer <strong>au bon endroit</strong>.</p>
-  </section>
-
-  <!-- 3. Sessions -->
-  <section class="slide legacy" data-section="2" aria-label="Une session, un objectif, une PR">
-    <h2>Une session, un objectif, une PR</h2>
-    <p class="lead">Même logique que « un commit = une chose ».</p>
-    <div class="flow">
-      <div class="step"><div class="card"><h3>Session</h3>Un seul objectif.</div></div>
-      <div class="step"><span class="arrow">→</span><div class="card"><h3>PR</h3>Tout est écrit.</div></div>
-      <div class="step"><span class="arrow">→</span><div class="card"><h3>Relecture</h3>Puis merge.</div></div>
-      <div class="step"><span class="arrow">↺</span><div class="card good"><h3>Session neuve</h3>Mémoire à jour.</div></div>
-    </div>
-    <div class="card warn step"><strong>Session qui grossit :</strong> compaction arbitraire, qualité en baisse, coût en tokens en hausse.</div>
-  </section>
-
-  <section class="slide legacy" data-section="2" aria-label="Isoler le contexte">
-    <h2>Isoler le contexte</h2>
-    <p class="lead">Moins de contexte pollué, moins d'hallucinations.</p>
-    <div class="grid cols-2">
-      <div class="card good step">
-        <h3>Sous-agents</h3>
-        Contexte propre et regard extérieur. Exemple : la review de code, lancée sans l'historique de la discussion.
+      <span class="problem-label">Travers</span>
+      <h2>Il en fait trop</h2>
+      <div class="exchange">
+        <p class="ask">Résume l'atelier d'hier en une page.</p>
+        <p class="reply">Voici le résumé (6 pages), avec un plan de conduite du changement, une matrice RACI et trois scénarios de déploiement.</p>
       </div>
-      <div class="card good step">
-        <h3>Worktrees</h3>
-        Une copie du projet par session : plusieurs sessions en parallèle, sans toucher à ton local.
-      </div>
+      <div class="card good step unlock"><span class="unlock-label">Parade</span><span class="rule">«&nbsp;Fais ce qui est demandé, rien de plus. Propose le reste, sans l'ajouter.&nbsp;»</span><span class="where">→ ton AGENTS.md</span></div>
     </div>
-    <div class="card step">
-      <strong>À nuancer.</strong> Le repère « ne pas dépasser ~25 % du contexte » est une recommandation, pas une règle.
-      <strong>Contre-exemple vécu :</strong> deux sujets dans une session, et la PR devient difficile à relire.
-    </div>
+    <aside class="notes">
+      <p>Deuxième travers : il en fait trop. Tu demandes un résumé d'une page, tu reçois six pages, avec un plan de conduite du changement et trois scénarios que personne n'a demandés.</p>
+      <p>Il est fier de lui. Mais tout ce qu'il ajoute, il faut le relire, et ce qui n'a pas été demandé finit souvent par induire en erreur.</p>
+      <p>La parade : fais ce qui est demandé, rien de plus. S'il a une bonne idée en plus, il la propose en une ligne, et c'est toi qui décides. C'est ta façon de travailler, dans tous tes projets : elle va dans ton AGENTS.md.</p>
+    </aside>
   </section>
 
-  <!-- 4. Méthode -->
-  <section class="slide legacy" data-section="1" aria-label="Skill, BMAD, SDLC">
-    <h2>Skill, BMAD, SDLC : des recettes emboîtées</h2>
-    <p class="lead">Un skill guide l'IA comme une recette : « chez moi, on cuit les pâtes dans cette casserole ».</p>
+  <section class="slide with-mascot" data-section="3" aria-label="Il veut te faire plaisir">
+    <img class="mascot" src="assets/mascot/09-pleaser.svg" alt="Le collègue lève les deux pouces avec un grand sourire, des petits cœurs autour de lui.">
     <div class="stack">
-      <div class="card row step"><span class="name">Skill</span><span>Une recette pour une action précise.</span></div>
-      <div class="card row step">
-        <span class="name">BMAD</span>
-        <span>Des skills orientés cycle de vie.
-          <span class="chips"><span class="chip">Brief</span>→<span class="chip">PRD</span>→<span class="chip">Architecture</span>→<span class="chip">Dev</span>→<span class="chip">Review</span></span>
-        </span>
+      <span class="problem-label">Travers</span>
+      <h2>Il veut te faire plaisir</h2>
+      <div class="exchange">
+        <p class="ask">Mon hypothèse tient, non ?</p>
+        <p class="reply">Absolument ! Les entretiens la confirment.</p>
       </div>
-      <div class="card row good step"><span class="name">SDLC d'entreprise</span><span>BMAD plus les skills maison. Installé dans la <strong>première PR</strong> du projet, comme un <code>npm install</code>.</span></div>
+      <p class="hint"><span class="warn-text">Cinq entretiens sur douze la contredisent.</span> Et en relecture, il trouve toujours un défaut, même quand il n'y en a pas.</p>
+      <div class="card good step unlock"><span class="unlock-label">Parade</span><span class="rule">«&nbsp;Contredis-moi quand j'ai tort. "Rien à signaler" est une réponse acceptable.&nbsp;»</span><span class="where">→ ton AGENTS.md</span></div>
     </div>
+    <aside class="notes">
+      <p>Troisième travers, le plus dangereux en discovery : il veut te faire plaisir. Il répond ce qu'il pense que tu attends. Tu lui demandes si ton hypothèse tient : il te donne raison, alors que cinq entretiens sur douze la contredisent.</p>
+      <p>Le même travers a une autre face. Demande-lui une relecture : il trouve toujours un défaut, même minuscule, même inexistant, parce qu'une relecture sans remarque lui semble ratée. Exemple vécu : la relecture d'un framework qui devait absolument trouver un problème dans du code qui n'en avait pas.</p>
+      <p>La parade : autorise-le à te contredire, et à ne rien trouver. Les comportements par défaut, y compris ceux d'un framework, se surchargent. Elle aussi va dans ton AGENTS.md.</p>
+    </aside>
   </section>
 
-  <section class="slide legacy" data-section="1" aria-label="Un cadre, pas une obligation">
-    <h2>Un cadre, pas une obligation</h2>
-    <p class="lead">Le bon niveau de méthode dépend de la tâche.</p>
+  <section class="slide with-mascot" data-section="3" aria-label="Il range à sa façon">
+    <img class="mascot" src="assets/mascot/07-onboard-messy.svg" alt="Le collègue en tenue de l'entreprise a l'air embarrassé, une goutte de sueur sur la tempe.">
+    <div class="stack">
+      <span class="problem-label">Travers</span>
+      <h2>Il range à sa façon</h2>
+      <div class="files">notes-atelier.md   SYNTHESE-FINALE.md
+synthese_v2.md     decisions (1).md</div>
+      <div class="card good step unlock"><span class="unlock-label">Parade</span><div class="files">discovery/
+├─ sources.md         <span class="hint-text">ce qui fait foi</span>
+├─ interviews/        <span class="hint-text">fait, interprétation,</span>
+│                     <span class="hint-text">recommandation</span>
+├─ decisions.md       <span class="hint-text">et leur pourquoi</span>
+└─ open-questions.md</div><span class="where">→ AGENTS.md du projet</span></div>
+    </div>
+    <aside class="notes">
+      <p>Quatrième travers : il range à sa façon. Des noms de fichiers au hasard, trois synthèses dont on ne sait pas laquelle est la bonne, des décisions éparpillées. Lui s'y retrouve à peu près ; toi, non. Et ton équipe encore moins.</p>
+      <p>La parade : dis-lui comment organiser la discovery. Où vont les sources, les entretiens, les décisions et leur pourquoi, les questions ouvertes et closes. Tu peux aussi lui demander de proposer un rangement, puis tu valides : tu obtiens l'organisation que tu veux, pas la sienne.</p>
+      <p>Une règle qui change tout : dans chaque synthèse, lui faire distinguer le fait vérifié, l'interprétation et la recommandation. Sinon, une hypothèse tirée de trois entretiens finit présentée comme une vérité.</p>
+      <p>C'est une règle d'équipe : elle va dans le AGENTS.md du projet. Et bonus : après chaque réunion, donne-lui le compte rendu, il met à jour les décisions et clôt les questions réglées.</p>
+    </aside>
+  </section>
+
+  <section class="slide with-mascot" data-section="3" aria-label="Il invente ses mots">
+    <img class="mascot" src="assets/mascot/09-own-words.svg" alt="Le collègue, une main sur la hanche et l'index levé, l'air sûr de lui, prononce un mot gribouillé qu'il vient d'inventer.">
+    <div class="stack">
+      <span class="problem-label">Travers</span>
+      <h2>Il invente ses mots</h2>
+      <span class="chips"><span class="chips-label">Ton équipe dit</span><span class="chip">magasinier</span></span>
+      <span class="chips"><span class="chips-label">Lui écrit</span><span class="chip off">opérateur logistique</span><span class="chip off">agent d'entrepôt</span><span class="chip off">préparateur</span></span>
+      <p class="hint">Trois mots pour une seule personne : le lecteur croit à trois métiers.</p>
+      <div class="card good step unlock"><span class="unlock-label">Parade</span>Un glossaire, <strong>un mot par notion</strong> : <span class="rule">«&nbsp;Magasinier. Jamais opérateur, agent ni préparateur.&nbsp;»</span><span class="where">→ glossaire.md, lié depuis AGENTS.md</span></div>
+    </div>
+    <aside class="notes">
+      <p>Cinquième travers : il invente ses mots. Ton équipe dit « magasinier ». Lui écrit « opérateur logistique » dans un document, « agent d'entrepôt » dans un autre, « préparateur » dans le troisième. Pour lui, ce sont des synonymes. Pour ton lecteur, ce sont trois métiers.</p>
+      <p>Exemple vécu : dans une PR, il a introduit de lui-même un « réseau de partenaires certifiés » qui n'existait nulle part dans le projet.</p>
+      <p>La parade : un glossaire. Un mot par notion, et les mots à ne pas utiliser. Mais un glossaire grossit vite : il n'a pas sa place dans AGENTS.md. Il va dans son propre fichier, et AGENTS.md fait un lien vers lui.</p>
+    </aside>
+  </section>
+
+  <section class="slide" data-section="3" aria-label="Tout n'a pas à être dans AGENTS.md">
+    <h2>Tout n'a pas à être dans AGENTS.md</h2>
+    <p class="lead">Il le relit à chaque session : <strong>garde-le court, et fais des liens</strong>.</p>
     <div class="grid cols-2">
-      <div class="card step"><h3>Invoquer explicitement</h3>Sans cela, l'IA improvise sans utiliser les skills.</div>
-      <div class="card step"><h3>Pas toujours adapté</h3>BMAD est verbeux, lourd pour de la discovery. Alternatives citées : GSD, Spec Kit.</div>
-      <div class="card step"><h3>Surcharger les défauts</h3>Exemple : une review qui doit absolument trouver un défaut, même quand il n'y en a pas.</div>
-      <div class="card step"><h3>Modèle selon la tâche</h3>Un modèle léger pour extraire, un plus fort pour raisonner.</div>
-    </div>
-  </section>
+      <div class="files"># Discovery : gestion des stocks
+Objectif : outiller la réception ?
 
-  <!-- 5. Connaissance -->
-  <section class="slide legacy" data-section="2" aria-label="Onboarder le stagiaire">
-    <h2>Onboarder le stagiaire</h2>
-    <p class="lead">Le coût est au départ. Ensuite, le repo se réutilise.</p>
-    <div style="display:grid;grid-template-columns:.8fr 1.2fr;gap:20px">
-      <div class="card warn step">
-        <h3>Sans cadrage : context poisoning</h3>
-        Un document vieux de six mois et des slides récents sont mis au même niveau. Les réponses se mélangent.
-      </div>
-      <div class="card good stack" style="gap:14px">
-        <div class="step"><strong>Dire ce qui est obsolète</strong> et quelle est la source de vérité.</div>
-        <div class="step">Faire distinguer <strong>fait vérifié, interprétation, recommandation</strong>.</div>
-        <div class="step">Donner les comptes-rendus de réunion : il met à jour et <strong>clôt les questions ouvertes</strong>.</div>
-        <div class="step">Garder les liens vers les sources : « retourne voir, ça a changé ».</div>
+- Rangement : voir docs/rangement.md
+- Vocabulaire : voir docs/glossaire.md
+- Ce qui fait foi : voir docs/sources.md</div>
+      <div class="stack">
+        <div class="card good step"><h3>Court, il coûte moins</h3>Chaque ligne d'AGENTS.md est relue, et payée, à chaque session.</div>
+        <div class="card good step"><h3>Il suit les liens</h3>Il ouvre le glossaire quand il écrit, les sources quand il cherche.</div>
       </div>
     </div>
+    <div class="card good step unlock"><span class="unlock-label">Tu peux</span>Passer le relais aux devs : un lien vers ta discovery dans le AGENTS.md de leur projet.</div>
+    <aside class="notes">
+      <p>Tout n'a pas à être dans AGENTS.md. Il le relit au début de chaque session : chaque ligne occupe une place sur son bureau, et se paie, à chaque fois.</p>
+      <p>Alors on le garde court : l'objectif, et des liens. Le rangement, le glossaire, les sources vivent dans leurs propres fichiers. Il les ouvre quand il en a besoin : le glossaire quand il écrit, les sources quand il cherche.</p>
+      <p>Un lien peut même pointer vers un autre dépôt. Ta discovery est un dépôt : un lien dans le AGENTS.md du projet de code suffit pour que l'agent des devs la lise. Exemple vécu : une brique est remplacée par une autre dans la discovery, et le code suit, en une PR.</p>
+      <p>Tu peux maintenant faire avancer le projet de la discovery à la livraison, sans rien réécrire.</p>
+    </aside>
   </section>
 
-  <section class="slide legacy" data-section="2" aria-label="Un repo de connaissance pour plusieurs projets">
-    <h2>Un repo de connaissance, plusieurs projets</h2>
-    <p class="lead">Un lien dans <code>agent.md</code> suffit à brancher une session sur la bonne source.</p>
-    <div class="flow">
-      <div class="step"><div class="card"><h3>Repo de discovery</h3>Questions ouvertes et closes, décisions.</div></div>
-      <div class="step"><span class="arrow">→</span><div class="card"><h3>Lien dans <code>agent.md</code></h3>Du repo de code vers la discovery.</div></div>
-      <div class="step"><span class="arrow">→</span><div class="card"><h3>Session neuve</h3>Lit la discovery, propose un plan, tu valides.</div></div>
+  <section class="slide with-scene" data-section="3" aria-label="Les sous-agents">
+    <img class="scene-art" src="assets/mascot/08-subagents.svg" alt="Le collègue tend une feuille de chaque côté à deux autres collègues équipés comme lui, une fille à queue de cheval et un garçon aux cheveux bouclés, qui lisent chacun la leur.">
+    <div class="stack">
+      <h2>Fais-toi aider par d'autres collègues</h2>
+      <p class="lead">Seul, il relit son travail avec les yeux de l'auteur, et <strong>son bureau déborde</strong>.</p>
+      <div class="card good step"><h3>Chacun sa part</h3>Douze entretiens ? Trois sous-agents en lisent quatre chacun, et ne lui rapportent que leur synthèse.</div>
+      <div class="card good step unlock"><span class="unlock-label">Tu peux</span>Le faire relire par un regard neuf : un collègue qui n'a pas assisté à la réunion.</div>
     </div>
-    <div class="card good step">Exemple : une brique A est remplacée par une brique B dans la discovery. <strong>Le code suit</strong>, en une PR.</div>
+    <aside class="notes">
+      <p>Deux derniers problèmes. Seul, il relit son propre travail avec les yeux de l'auteur : il ne voit plus ses erreurs. Et sur une grosse tâche, son bureau déborde.</p>
+      <p>La parade : un agent peut en appeler d'autres, des sous-agents. Vois-les comme d'autres collègues, équipés comme lui, chacun avec son propre bureau.</p>
+      <p>Premier intérêt : se partager le travail. Tu lui demandes de synthétiser douze entretiens ; il en confie quatre à chacun de trois collègues, qui ne lui rapportent que leur synthèse. Son bureau à lui reste dégagé.</p>
+      <p>Second intérêt : un regard neuf. Un sous-agent part d'un bureau vide. Il n'a pas l'historique de la discussion, donc pas ses biais : il hallucine moins, et il voit ce que vous ne voyez plus. L'exemple type, c'est la relecture, avant même que tu ouvres la PR.</p>
+    </aside>
   </section>
 
-  <!-- 6. Cadrage -->
-  <section class="slide legacy" data-section="3" aria-label="Cadrer la sortie">
-    <h2>Cadrer ce qu'on attend en sortie</h2>
-    <p class="lead">Sans cadre, l'IA invente son vocabulaire, son format et sa complexité.</p>
+  <section class="slide" data-section="3" aria-label="Va plus vite, dépense moins">
+    <h2>Va plus vite, dépense moins</h2>
+    <p class="lead">Une fois qu'il travaille à ta façon, <strong>optimise</strong>.</p>
     <div class="grid cols-3">
-      <div class="card step"><h3>Vocabulaire</h3>Termes métier imposés. Un seul mot par concept.</div>
-      <div class="card step"><h3>Langues</h3><span class="good-text"><strong>FR</strong></span> échanges et contenu.<br><span class="good-text"><strong>EN</strong></span> fichiers, dossiers, commits.</div>
-      <div class="card step"><h3>Format</h3>Des schémas et des exemples plutôt que de longs textes.</div>
-      <div class="card step"><h3>YAGNI / KISS</h3>Contre la sur-architecture (des tests CSS que personne n'a demandés).</div>
-      <div class="card step"><h3>Humain ou agent</h3>Les instructions pour l'agent vont en commentaires, pas dans le texte lu par l'humain.</div>
-      <div class="card step"><h3>Structure de doc</h3>Lui faire proposer un plan (par exemple PARA), puis le valider.</div>
+      <div class="card good step"><h3>Le bon modèle</h3>Un modèle léger pour extraire, un plus fort pour raisonner. Tu le choisis dans le menu.</div>
+      <div class="card good step"><h3>Plusieurs sessions à la fois</h3>Une par sujet, chacune sur sa copie du projet : elles ne se marchent pas dessus.</div>
+      <div class="card good step"><h3>Ton workflow</h3>Dis-lui comment tu aimes travailler : il s'adapte à tes habitudes, pas l'inverse.</div>
     </div>
+    <aside class="notes">
+      <p>Dernier niveau de réglage : l'optimisation.</p>
+      <p>Le bon modèle pour la tâche. Extraire des verbatims ou reformuler n'a pas besoin du modèle le plus puissant : un modèle léger va plus vite et coûte moins. Garde le plus fort pour raisonner, arbitrer, concevoir.</p>
+      <p>Plusieurs sessions à la fois. Une session par sujet, chacune avec son cycle, qui tournent en parallèle. Les outils donnent à chacune sa propre copie du projet, pour qu'elles ne se marchent pas dessus, ni sur ta version.</p>
+      <p>Ton workflow. Si une étape du cycle t'agace, dis-le-lui : il s'adapte. Exemple vécu : c'est l'humain qui valide la PR, donc l'agent met à jour le suivi avant, plutôt que de demander un clic de plus.</p>
+    </aside>
   </section>
 
-  <!-- 7. Relecture -->
-  <section class="slide legacy" data-section="3" aria-label="Corriger la cause">
-    <h2>Corriger la cause, pas le symptôme</h2>
-    <p class="lead">Un « retire ça » sans règle écrite, et l'erreur revient.</p>
-    <div class="grid cols-2">
-      <div class="card warn step">
-        <h3>Je corrige le symptôme</h3>
-        <div class="seq">
-          <div>« Retire ce bloc »</div>
-          <div>L'IA obéit</div>
-          <div><strong>Trois PR plus tard : même erreur</strong></div>
-        </div>
-      </div>
-      <div class="card good step">
-        <h3>Je corrige la cause</h3>
-        <div class="seq">
-          <div>« Retire ce bloc »</div>
-          <div>Et la règle est écrite dans <code>agent.md</code></div>
-          <div><strong>L'erreur ne revient plus</strong></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide legacy" data-section="3" aria-label="Relire la PR comme un collègue">
-    <h2>La PR se relit comme celle d'un collègue</h2>
-    <p class="lead">Relire beaucoup au début, de moins en moins ensuite.</p>
-    <div class="flow">
-      <div class="step"><div class="card"><h3>Relire</h3>Comme un dev externe.</div></div>
-      <div class="step"><span class="arrow">→</span><div class="card"><h3>Commenter</h3>Review dans la PR.</div></div>
-      <div class="step"><span class="arrow">→</span><div class="card good"><h3>« Prends en compte »</h3>Nouveau commit, nouvelle règle.</div></div>
-    </div>
-  </section>
-
-  <section class="slide legacy" data-section="3" aria-label="Garder le pourquoi">
-    <h2>Garder le pourquoi, s'adapter</h2>
-    <p class="lead">Une pratique durable laisse une trace et s'ajuste à celui qui l'utilise.</p>
-    <div class="grid cols-3">
-      <div class="card step"><h3>Historique du pourquoi</h3>Un memo log ou des ADR : savoir pourquoi une règle existe.</div>
-      <div class="card step"><h3>Recadrer</h3>Pas satisfait ? Une session de recadrage plutôt que s'acharner.</div>
-      <div class="card step"><h3>Ses habitudes</h3>Exemple : statut du sprint déjà à jour dans la PR, puisque c'est toi qui cliques sur merge.</div>
-    </div>
+  <section class="slide" data-section="3" aria-label="Règle-le à ta façon">
+    <h2>Règle-le à ta façon</h2>
+    <p class="lead">Comme les réglages d'un personnage de jeu : <strong>chaque curseur glisse vers ta façon</strong>.</p>
+    <ol class="tuning">
+      <li class="step"><span class="from">Bavard</span><span class="track"><span class="knob"></span></span><span class="to">Concis</span></li>
+      <li class="step"><span class="from">En fait trop</span><span class="track"><span class="knob"></span></span><span class="to">Juste ce qu'il faut</span></li>
+      <li class="step"><span class="from">Te donne raison</span><span class="track"><span class="knob"></span></span><span class="to">Te contredit</span></li>
+      <li class="step"><span class="from">Son rangement</span><span class="track"><span class="knob"></span></span><span class="to">Le tien</span></li>
+      <li class="step"><span class="from">Ses mots</span><span class="track"><span class="knob"></span></span><span class="to">Tes mots</span></li>
+    </ol>
+    <aside class="notes">
+      <p>Récapitulons la troisième partie. Par défaut, il est bavard, il en fait trop, il te donne raison, il range à sa façon et il invente ses mots.</p>
+      <p>Chaque réglage tient en une règle, écrite une fois au bon endroit : ton AGENTS.md pour ta façon de travailler, celui du projet pour les règles de l'équipe, et des fichiers liés pour le reste. Curseur après curseur, il devient le collègue que tu veux.</p>
+    </aside>
   </section>
 
   <!-- Clôture -->
-  <section class="slide legacy" aria-label="Posture">
-    <h2>La posture</h2>
-    <div class="grid cols-2" style="margin-top:20px">
-      <div class="card step"><p class="big">Pas un moteur de recherche.</p><p style="margin-top:14px">On lui demande, on lui explique, on relit. On ne va pas chercher à sa place sur Google.</p></div>
-      <div class="card good step"><p class="big">Plus vite, ensemble.</p><p style="margin-top:14px">La courbe d'apprentissage est longue seul. Partager les pratiques en équipe l'accélère.</p></div>
-    </div>
+  <section class="slide" aria-label="Tes trois tiroirs">
+    <h2>Tes trois tiroirs</h2>
+    <p class="lead">Ce que tu as construit avec lui.</p>
+    <ol class="drawers">
+      <li class="drawer open"><span class="num">1</span><span class="name">L'équiper</span><span class="gain">Tu as les bons outils, et tu sais ce que chacun permet.</span><span class="knob"></span></li>
+      <li class="drawer open"><span class="num">2</span><span class="name">L'onboarder</span><span class="gain">Tu travailles avec lui, cycle après cycle.</span><span class="knob"></span></li>
+      <li class="drawer open"><span class="num">3</span><span class="name">Ses traits</span><span class="gain">Tu corriges ses travers une fois pour toutes.</span><span class="knob"></span></li>
+    </ol>
+    <aside class="notes">
+      <p>Les trois tiroirs sont ouverts. Tu l'as équipé : tu as les bons outils, et tu sais ce que chacun permet. Tu l'as onboardé : tu travailles avec lui sur ta discovery, cycle après cycle. Et tu connais ses traits : tu les corriges une fois pour toutes.</p>
+    </aside>
   </section>
 
-  <section class="slide legacy" aria-label="Le stagiaire en sept phrases">
-    <h2>Le stagiaire, en sept phrases</h2>
-    <ol class="sevens">
-      <li class="step"><span class="num">1</span><span>Il ne retient rien : il faut comprendre pourquoi.</span></li>
-      <li class="step"><span class="num">2</span><span>Alors on écrit dans le repo.</span></li>
-      <li class="step"><span class="num">3</span><span>Une session, un objectif, une PR.</span></li>
-      <li class="step"><span class="num">4</span><span>La méthode est un cadre, pas une obligation.</span></li>
-      <li class="step"><span class="num">5</span><span>On l'onboarde : sources, vérité, obsolète.</span></li>
-      <li class="step"><span class="num">6</span><span>On cadre ce qu'on attend en sortie.</span></li>
-      <li class="step"><span class="num">7</span><span>On relit, et on corrige la cause.</span></li>
-    </ol>
+  <section class="slide finale" aria-label="Présente-lui ton projet">
+    <img class="team" src="assets/mascot/10-team-hello.svg" alt="Quatre collègues équipés, côte à côte, nous font coucou de la main, chacun avec sa coiffure et ses baskets.">
+    <p class="big">Ton collègue est prêt. <span class="good-text">Présente-lui ton projet.</span></p>
+    <div class="grid cols-2">
+      <div class="card step"><h3>Pas un moteur de recherche</h3>Demande-lui comment faire, plutôt que de chercher à sa place.</div>
+      <div class="card good step"><h3>Plus vite, ensemble</h3>Seul, la courbe est longue : partage tes pratiques avec ton équipe.</div>
+    </div>
+    <aside class="notes">
+      <p>Au début, il disait bonjour, les mains vides. Le voilà prêt, et il n'est plus seul : il a des collègues, équipés comme lui.</p>
+      <p>Deux réflexes pour finir. Ce n'est pas un moteur de recherche : plutôt que d'aller chercher toi-même, demande-lui comment faire, et fais-le faire.</p>
+      <p>Et la courbe d'apprentissage est longue quand on est seul. Partage tes pratiques, tes règles, tes skills avec ton équipe : c'est ce qui accélère le plus.</p>
+      <p>À toi : présente-lui ton projet.</p>
+    </aside>
   </section>
 
   <div id="counter"></div>
@@ -822,12 +1144,15 @@
     { label: "Guide", icon: "manual" },
     { label: "Casquette", icon: "cap" },
   ];
+  const CYCLE_STEPS = ["Session", "Sujet", "Plan", "Exécution", "PR", "Relecture", "Merge"];
   const SECTION_LABELS = ["L'équiper", "L'onboarder", "Ses traits"];
 
   const stage = document.getElementById("stage");
   const tracker = document.getElementById("tracker");
   const inventory = document.getElementById("inventory");
   const inventorySlots = inventory.querySelector(".slots");
+  const cycle = document.getElementById("cycle");
+  const cycleSteps = cycle.querySelector(".steps");
   const counter = document.getElementById("counter");
   const progress = document.getElementById("progress");
   const notesText = document.getElementById("notes-text");
@@ -845,6 +1170,12 @@
     item.style.setProperty("--i", i);
     item.innerHTML = `<img src="assets/mascot/items/${icon}.svg" alt="${label}">`;
     inventorySlots.append(item);
+  });
+
+  CYCLE_STEPS.forEach((label) => {
+    const item = document.createElement("li");
+    item.innerHTML = `<span class="dot"></span><span>${label}</span>`;
+    cycleSteps.append(item);
   });
 
   let currentIndex = 0;
@@ -885,6 +1216,19 @@
     });
   }
 
+  // data-cycle is the step under way; "loop" lights the way back to a new session, every step done.
+  function updateCycle(slide) {
+    const step = slide.dataset.cycle;
+    const isLooping = step === "loop";
+    const currentStep = isLooping ? CYCLE_STEPS.length + 1 : Number(step);
+    cycle.classList.toggle("hidden", step === undefined);
+    cycle.classList.toggle("looping", isLooping);
+    [...cycleSteps.children].forEach((item, i) => {
+      item.classList.toggle("current", i + 1 === currentStep);
+      item.classList.toggle("done", i + 1 < currentStep);
+    });
+  }
+
   function showNotesOf(slide) {
     const notes = slide.querySelector("aside.notes");
     notesText.innerHTML = notes ? notes.innerHTML : '<p class="empty">Pas de notes pour cette slide.</p>';
@@ -903,6 +1247,7 @@
     stepsOf(slides[index]).forEach((step) => step.classList.toggle("shown", revealAllSteps));
     updateTracker(slides[index]);
     updateInventory(slides[index]);
+    updateCycle(slides[index]);
     showNotesOf(slides[index]);
     counter.textContent = `${index + 1} / ${slides.length}`;
     progress.style.width = `${((index + 1) / slides.length) * 100}%`;
